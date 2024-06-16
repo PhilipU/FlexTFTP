@@ -1,8 +1,12 @@
 ﻿FlexTFTP
 
-Last Update: 20.01.2023
+Last Update: 16.06.2024
 http://flextftp.philipurban.de
 (help at end of page)
+
+v4.5
+----
+* Update to .net v8
 
 v4.4
 ----

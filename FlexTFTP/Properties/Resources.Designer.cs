@@ -19,7 +19,7 @@ namespace FlexTFTP.Properties {
     // -Klasse über ein Tool wie ResGen oder Visual Studio automatisch generiert.
     // Um einen Member hinzuzufügen oder zu entfernen, bearbeiten Sie die .ResX-Datei und führen dann ResGen
     // mit der /str-Option erneut aus, oder Sie erstellen Ihr VS-Projekt neu.
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "15.0.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "17.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     internal class Resources {
@@ -63,48 +63,36 @@ namespace FlexTFTP.Properties {
         /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die FlexTFTP
         ///
-        ///Last Update: 13.10.2018
+        ///Last Update: 20.01.2023
         ///http://flextftp.philipurban.de
         ///(help at end of page)
         ///
-        ///v3.8
+        ///v4.4
         ///----
-        ///* Fixed file lock
+        ///* Added new devices for second SoC projects
         ///
-        ///v3.7
+        ///v4.3
         ///----
-        ///* Show last write date info
-        ///* Full file path option
-        ///* Bug fixes
+        ///* Added new device FlexSystem-M
+        ///* Added new device FlexSystem-XS
         ///
-        ///v3.6
+        ///v4.2
         ///----
-        ///* Device online check
-        ///* Reduced log output
+        ///* Print used target address for each transfer
+        ///* Added new Path for ESP32 WiFi Firmware
         ///
-        ///v3.5
+        ///v4.1
         ///----
-        ///* Bug fixes
+        ///* Fixed file monitoring
         ///
-        ///v3.4
+        ///v4.0
         ///----
-        ///* Added file watcher to detect changes
+        ///* Added new device FlexDevice-L 3rd Gen
+        ///* Added new device FlexDevice-L 2SoC 3rd Gen
         ///
-        ///v3.3
+        ///v3.9
         ///----
-        ///* Lock transfer settings per file
-        ///
-        ///v3.2
-        ///----
-        ///* Added type dependend Auto Path option
-        ///
-        ///v3.1
-        ///----
-        ///* Added new device FlexDevice-S
-        ///
-        ///v3.0
-        ///----
-        ///* [Rest der Zeichenfolge wurde abgeschnitten]&quot;; ähnelt.
+        ///* Added new device Flex [Rest der Zeichenfolge wurde abgeschnitten]&quot;; ähnelt.
         /// </summary>
         internal static string Changelog {
             get {
