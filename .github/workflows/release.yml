@@ -17,7 +17,7 @@ jobs:
       env:
         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        title: ${{ github.event.head_commit.message }}
+        title: ${{ github.ref_name }}
 
   build:
 
@@ -53,3 +53,4 @@ jobs:
       with:
         files: "FlexTFTP/bin/Release/*.exe;FlexTFTP/bin/Release/*.txt"
         repo-token: ${{ secrets.GITHUB_TOKEN }}
+        release-tag: ${{ github.ref }}
