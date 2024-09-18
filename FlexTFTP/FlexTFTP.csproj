@@ -278,14 +278,4 @@ foreach (var item in filesToCleanup)
     <Error Condition="!Exists('..\packages\MSBuildTasks.1.5.0.235\build\MSBuildTasks.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\MSBuildTasks.1.5.0.235\build\MSBuildTasks.targets'))" />
     <Error Condition="!Exists('..\packages\MSBuild.Extension.Pack.1.9.0\build\net40\MSBuild.Extension.Pack.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\MSBuild.Extension.Pack.1.9.0\build\net40\MSBuild.Extension.Pack.targets'))" />
   </Target>
-  <!-- Before build custom actions -->
-  <Target Name="BeforeBuild">
-    <Message Importance="High" Text="Before build custom tasks" />
-    <Message Importance="High" Text="-------------------------" />
-  </Target>
-  <!-- After build custom actions -->
-  <Target Name="AfterBuild" Condition=" '$(Configuration)' == 'Deploy' ">
-    <Message Importance="High" Text="After build custom tasks" />
-    <Message Importance="High" Text="------------------------" />
-  </Target>
 </Project>
