@@ -2,7 +2,7 @@
 
 namespace FlexTFTP
 {
-    static class TargetPathParser
+    public static class TargetPathParser
     {
         private static readonly Dictionary<string, string> Dict = new Dictionary<string, string>()
         {
@@ -152,16 +152,16 @@ namespace FlexTFTP
             { "3-00870V01_application.s19", "wifi/application"      },
 
             /* FlexSystem-XS */
-            { "3-01040A01_application", "cpu/application"           },
+            { "3-01040A01_application.s19", "cpu/application"           },
 
             /* FlexSystem-XS Squared */
-            { "3-01040C01_application", "cpu/application"           },
+            { "3-01040C01_application.s19", "cpu/application"           },
 
             /* FlexSystem-XS Cubed */
-            { "3-01040D01_application", "cpu/application"           },
+            { "3-01040D01_application.s19", "cpu/application"           },
 
             /* FlexSystem-M */
-            { "3-01050A01_application", "cpu/application"           },
+            { "3-01050A01_application.s19", "cpu/application"           },
         };
 
         public static string GetPathByName(string name)
