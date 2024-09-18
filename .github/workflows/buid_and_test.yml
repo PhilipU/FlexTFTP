@@ -3,6 +3,10 @@ name: Build and Test
 
 on: [push]
 
+env:
+  Solution_Name: FlexTFTP
+  Test_Project_Path: Tests\Tests.csproj
+
 jobs:
 
   build:
@@ -12,10 +16,6 @@ jobs:
         configuration: [Release]
 
     runs-on: windows-latest
-
-    env:
-      Solution_Name: FlexTFTP
-      Test_Project_Path: Tests\Tests.csproj
 
     steps:
     - name: Checkout
