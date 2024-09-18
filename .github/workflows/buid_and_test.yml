@@ -38,7 +38,7 @@ jobs:
           nuget-version: '5.x'
 
     - name: Restore NuGet packages
-      run: nuget restore $Solution_Name.sln
+      run: nuget restore ${{ env.Solution_Name }}.sln
 
     - name: Execute unit tests
       run: dotnet test
