@@ -282,52 +282,10 @@ foreach (var item in filesToCleanup)
   <Target Name="BeforeBuild">
     <Message Importance="High" Text="Before build custom tasks" />
     <Message Importance="High" Text="-------------------------" />
-    <Message Importance="High" Text="[$([System.DateTime]::Now)] No before build tasks!" />
-    <Message Importance="High" Text="-------------------------" />
-    <!-- Changelog file item group -->
-    <ItemGroup>
-      <ChangelogFile Include="$(ProjectDir)Changelog.txt" />
-    </ItemGroup>
-    <ItemGroup>
-      <CopiedChangelogFile Include="$(ProjectDir)$(OutputPath)Changelog.txt" />
-    </ItemGroup>
-    <!-- Copy Changelog.txt to current output directory -->
-    <Message Importance="High" Text="[$([System.DateTime]::Now)]  Copy Changelog.txt" />
-    <Copy SourceFiles="@(ChangelogFile)" DestinationFolder="$(ProjectDir)$(OutputPath)" />
-    <!-- Set current date in Changelog.txt -->
-    <Message Importance="High" Text="[$([System.DateTime]::Now)] Update Changelog date to $(CurrentDate)" />
-    <FileUpdate Files="@(CopiedChangelogFile)" Regex="(\$\(CurrentDate\))" ReplacementText="$(CurrentDate)" />
   </Target>
   <!-- After build custom actions -->
   <Target Name="AfterBuild" Condition=" '$(Configuration)' == 'Deploy' ">
     <Message Importance="High" Text="After build custom tasks" />
-    <Message Importance="High" Text="------------------------" />
-    <!-- Deploy archive name -->
-    <PropertyGroup>
-      <DeployArchive>$(ProjectDir)\Builds\$(AssemblyName)_v$(AssemblyVersionMajor).$(AssemblyVersionMinor).zip</DeployArchive>
-      <ftpHost>ftp.philipurban.de</ftpHost>
-      <ftpUser>web241</ftpUser>
-    </PropertyGroup>
-    <!-- Create deploy archive -->
-    <Message Importance="High" Text="[$([System.DateTime]::Now)] Create deploy archive '$(DeployArchive)'" />
-    <ItemGroup>
-      <InstallFiles Include="$(ProjectDir)$(OutputPath)Changelog.txt" />
-      <InstallFiles Include="$(ProjectDir)$(OutputPath)$(AssemblyName).exe" />
-    </ItemGroup>
-    <MakeDir Directories="$(ProjectDir)\Builds" Condition="!Exists('$(ProjectDir)\Builds')" />
-    <Zip Files="@(InstallFiles)" WorkingDirectory="$(ProjectDir)$(OutputPath)" ZipFileName="$(DeployArchive)" ZipLevel="9" />
-    <!-- Get FTP password -->
-    <PropertyGroup>
-      <ftpPassword>$([System.IO.File]::ReadAllText('C:/deploy_pw.cfg'))</ftpPassword>
-    </PropertyGroup>
-    <!-- Upload build to beta FTP drive -->
-    <ItemGroup>
-      <!-- Specify Files to upload -->
-      <FilesToUpload Include="$(DeployArchive)" />
-    </ItemGroup>
-    <Message Importance="High" Text="[$([System.DateTime]::Now)] Upload new version via FTP..." />
-    <MSBuild.ExtensionPack.Communication.Ftp TaskAction="UploadFiles" Host="$(ftpHost)" UserName="$(ftpUser)" UserPassword="$(ftpPassword)" FileNames="@(FilesToUpload)" RemoteDirectoryName="html/flextftp/downloads/beta/" />
-    <Message Importance="High" Text="[$([System.DateTime]::Now)] Upload finished!" />
     <Message Importance="High" Text="------------------------" />
   </Target>
 </Project>
