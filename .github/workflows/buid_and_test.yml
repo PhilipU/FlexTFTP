@@ -27,7 +27,6 @@ jobs:
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: |
-          4.7.2
           8.0.x
         cache: true
 
