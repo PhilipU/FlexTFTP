@@ -2,6 +2,8 @@
 using System;
 using System.Drawing;
 using System.IO;
+using System.Security.Policy;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using Tftp.Net;
@@ -34,6 +36,16 @@ namespace FlexTFTP
         private string _tempFilePath1;
         private string _tempFilePath2;
         private int _currentTempFile = 1;
+        private bool _activeError = false;
+        private System.Threading.Timer _closeTimer = null;
+
+        public bool ActiveError
+        {
+            get
+            {
+                return _activeError;
+            }
+        }
 
         public long TransferTotalTimeSec
         {
@@ -87,6 +99,7 @@ namespace FlexTFTP
             if (!File.Exists(file))
             {
                 _form.OutputBox.AddLine("Error: File does not exist!", Color.Red, true);
+                _activeError = true;
                 StopTransfer();
                 return false;
             }
@@ -98,6 +111,7 @@ namespace FlexTFTP
             catch
             {
                 _form.OutputBox.AddLine("Error: Invalid host address!", Color.Red, true);
+                _activeError = true;
                 StopTransfer();
                 return false;
             }
@@ -163,12 +177,14 @@ namespace FlexTFTP
             catch
             {
                 _form.OutputBox.AddLine("Error: Can not open file!", Color.Red, true);
+                _activeError = true;
                 StopTransfer();
                 return false;
             }
 
             _form.OutputBox.AddLine("Transfer started (" + address + ")", Color.Black, true);
             _form.SetTransferStateButtonText("Cancel");
+            _activeError = false;
 
             return true;
         }
@@ -209,10 +225,18 @@ namespace FlexTFTP
                 }
                 else
                 {
-                    var unused = new System.Threading.Timer(CloseTimerRunnable, null, 1000, 1000);
                     _form.OutputBox.AddLine();
-                    _form.OutputBox.AddLine("Application will be closed in", Color.Black);
-                    _form.OutputBox.AddLine(_closeTimerCount.ToString(), Color.Red);
+                    _form.OutputBox.AddLine("Application will be closed in " + _closeTimerCount + "sec", Color.Black);
+
+                    if(_closeTimerCount > 0)
+                    {
+                        _closeTimerCount--;
+                    }
+
+                    if(_closeTimer == null)
+                    {
+                        _closeTimer = new System.Threading.Timer(CloseTimerRunnable, null, 1000, 1000);
+                    }
                 }
             }
 
@@ -223,7 +247,15 @@ namespace FlexTFTP
         {
             if (0 == _closeTimerCount)
             {
-                Application.Exit();
+                if(_closeTimer != null)
+                {
+                    _closeTimer.Dispose();
+                }
+                
+                _form.Invoke((MethodInvoker)delegate
+                {
+                    _form.Close();
+                });
             }
             else
             {
@@ -240,7 +272,7 @@ namespace FlexTFTP
 
         private void UpdateText(string text, Color color)
         {
-            _form.OutputBox.AddLine(text, Color.Red);
+            _form.OutputBox.AddLine(text, color);
         }
 
         public void UpdateProgress(TftpTransferProgress progress)
@@ -267,6 +299,7 @@ namespace FlexTFTP
         {
             if (!_transferInProgress) return;
             string errorMessage = ErrorMessageTranslator.TranslateError(error.ToString());
+            _activeError = true;
             StopTransfer();
             if(_path.StartsWith("cpu") && _file.EndsWith(".s19") && Settings.Default.AutoForce && !_path.Contains("-force") && 
                 error.ToString().Contains("Invalid device type"))
@@ -289,6 +322,7 @@ namespace FlexTFTP
             _form.OutputBox.AddLine("Finished in " + Math.Round(transferTime.TotalSeconds) + "s (" + speed + "MB/s)", Color.Green, true);
             _transferTotalTimeSec += (int)Math.Round(transferTime.TotalSeconds);
             _transferTotalkiloByte += (int)(_lastFileSize / 1024);
+            _activeError = false;
             StopTransfer();
         }
 
@@ -324,7 +358,7 @@ namespace FlexTFTP
         public void CloseAfterwards(bool enabled, int delay)
         {
             _closeAfterwards = enabled;
-            _closeTimerCount = delay;
+            _closeTimerCount = delay == 0 ? 1 : delay;
         }
     }
 }

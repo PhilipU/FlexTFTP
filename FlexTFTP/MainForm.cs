@@ -32,6 +32,15 @@ namespace FlexTFTP
         private OnlineChecker _onlineChecker;
         private IPAddress _currentIpAddress;
         private bool _currentOnlineState;
+        private bool _activeError = false;
+        
+        public bool ActiveError
+        {
+            get
+            {
+                return _activeError | Transfer.ActiveError;
+            }
+        }
 
         [System.Runtime.InteropServices.DllImport("user32.dll")]
         private static extern short GetKeyState(Keys key);
@@ -219,7 +228,7 @@ namespace FlexTFTP
             {
                 _processedPath = null;
 
-                if (autoPathCheckBox.Checked)
+                if (Settings.Default.AutoPath)
                 {
                     if (parsedPath != null && !_targetPath.Equals(parsedPath))
                     {
@@ -236,6 +245,7 @@ namespace FlexTFTP
                     OutputBox.AddLine("Error: File does not exist!", Color.Red, true);
                 }
                 _processedPath = null;
+                _activeError = true;
                 return;
             }
 
@@ -265,7 +275,7 @@ namespace FlexTFTP
             // we should reenable Auto Path option even if it was disabled by user
             // if TypDependendAutoPath settings option is enabled.
             bool typeDependendAutoPath = false;
-            if (!autoPathCheckBox.Checked && Settings.Default.TypeDependendAutpPath && 
+            if (!Settings.Default.AutoPath && Settings.Default.TypeDependendAutpPath && 
                 parsedPath != null && previousTargetPath != null && parsedPath.Length > 0 && previousTargetPath.Length > 0)
             {
                 string previousTargetPathPart = Utils.GetStringBeforeSecondSlash(previousTargetPath);
@@ -274,10 +284,10 @@ namespace FlexTFTP
                 if(previousTargetPathPart != currentTargetPathPart)
                 {
                     typeDependendAutoPath = true;
-                    autoPathCheckBox.Checked = true; // This will cause SetAutoPath() -> Skip the call below
+                    SetSettingAutoPath(true); // This will cause SetAutoPath() -> Skip the call below
                 }
             }
-            if (autoPathCheckBox.Checked && !typeDependendAutoPath)
+            if (Settings.Default.AutoPath && !typeDependendAutoPath)
             {
                 SetAutoPath(_openedPath);
             }
@@ -312,7 +322,7 @@ namespace FlexTFTP
                 return;
             }
             LockedSettings newLockedSettings = new LockedSettings(_openedPath, 
-                _targetPath, textBoxAddress.Text, maskedTextBoxPort.Text, autoPathCheckBox.Checked);
+                _targetPath, textBoxAddress.Text, maskedTextBoxPort.Text, Settings.Default.AutoPath);
             _lockedSettingsHistory.AddEntry(newLockedSettings);
             pictureBox_lockSettings.Image = Resources.lock_closed;
             textBoxPath.Enabled = false;
@@ -339,7 +349,7 @@ namespace FlexTFTP
 
         private void LoadLockedSettings(LockedSettings lockedSettings)
         {
-            autoPathCheckBox.Checked = lockedSettings.AutoPath;
+            SetSettingAutoPath(lockedSettings.AutoPath);
             textBoxPath.Text = lockedSettings.TargetPath;
             textBoxAddress.Text = lockedSettings.Ip;
             maskedTextBoxPort.Text = lockedSettings.Port;
@@ -380,7 +390,7 @@ namespace FlexTFTP
             //---------
             if (textBoxAddress.Text != Settings.Default.Preset1Address ||
                 (!Settings.Default.Preset1AutoPath && textBoxPath.Text != Settings.Default.Preset1Path) ||
-                autoPathCheckBox.Checked != Settings.Default.Preset1AutoPath ||
+                Settings.Default.AutoPath != Settings.Default.Preset1AutoPath ||
                 maskedTextBoxPort.Text != Settings.Default.Preset1Port)
             {
                 pictureBoxPreset1.Image = Resources.preset1_inactive;
@@ -394,7 +404,7 @@ namespace FlexTFTP
             //---------
             if (textBoxAddress.Text != Settings.Default.Preset2Address ||
                 (!Settings.Default.Preset2AutoPath && textBoxPath.Text != Settings.Default.Preset2Path) ||
-                autoPathCheckBox.Checked != Settings.Default.Preset2AutoPath ||
+                Settings.Default.AutoPath != Settings.Default.Preset2AutoPath ||
                 maskedTextBoxPort.Text != Settings.Default.Preset2Port)
             {
                 pictureBoxPreset2.Image = Resources.preset2_inactive;
@@ -403,6 +413,13 @@ namespace FlexTFTP
             {
                 pictureBoxPreset2.Image = Resources.preset2_active;
             }
+        }
+
+        private void SetSettingAutoPath(bool autoPath)
+        {
+            //OutputBox.AddLine("Auto Path Set:" + autoPath, Color.Black, true);
+            Settings.Default.AutoPath = autoPath;
+            autoPathCheckBox.Checked = autoPath;
         }
     }
 }

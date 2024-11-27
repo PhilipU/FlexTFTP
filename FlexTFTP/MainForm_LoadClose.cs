@@ -83,8 +83,8 @@ namespace FlexTFTP
             //---------------------
             _updater = new Updater(_settingsDataRootPath);
 
-            // Loade Settings
-            //---------------
+            // Load Settings
+            //--------------
             UpdateSettings();
         }
 
@@ -105,23 +105,28 @@ namespace FlexTFTP
                 //---------------------------------------------
                 Transfer.CloseAfterwards(true, 3);
 
+                Settings.Default.AutoForce = false;
+
                 // Get path as second argument
                 //----------------------------
                 if (args.Length > 2)
                 {
+                    OutputBox.AddLine("Target path is set to: " + args[2], Color.Black, true);
                     if (args[2].Equals("auto", StringComparison.OrdinalIgnoreCase))
                     {
-                        autoPathCheckBox.Checked = true;
+                        SetSettingAutoPath(true);
                     }
                     else
                     {
-                        autoPathCheckBox.Checked = false;
+                        OutputBox.AddLine("Disable auto path", Color.Black, true);
+                        SetSettingAutoPath(false);
+                        Settings.Default.TypeDependendAutpPath = false; // Prevent reenabling auto path due to other checks
                         SetTargetPath(args[2]);
                     }
                 }
                 else
                 {
-                    autoPathCheckBox.Checked = true;
+                    SetSettingAutoPath(true);
                 }
 
                 // Get target IP as third argument

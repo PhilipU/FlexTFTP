@@ -154,13 +154,13 @@ namespace FlexTFTP
             SetTargetPath(textBoxPath.Text);
             Settings.Default.Path = textBoxPath.Text;
 
-            if (autoPathCheckBox.Checked && !oldPath.Equals(textBoxPath.Text))
+            if (Settings.Default.AutoPath && !oldPath.Equals(textBoxPath.Text))
             {
                 string parsedPath = TargetPathParser.GetTargetPath(_openedPath);
 
                 if (parsedPath != null && !_targetPath.Equals(parsedPath))
                 {
-                    autoPathCheckBox.Checked = false;
+                    SetSettingAutoPath(false);
                     OutputBox.AddLine("Auto path option disabled.");
                 }
             }
@@ -233,9 +233,9 @@ namespace FlexTFTP
                 textBoxPath.Text = Settings.Default.Preset1Path;
             }
 
-            if (autoPathCheckBox.Checked != Settings.Default.Preset1AutoPath)
+            if (Settings.Default.AutoPath != Settings.Default.Preset1AutoPath)
             {
-                autoPathCheckBox.Checked = Settings.Default.Preset1AutoPath;
+                SetSettingAutoPath(Settings.Default.Preset1AutoPath);
             }
 
             if (maskedTextBoxPort.Text != Settings.Default.Preset1Port)
@@ -260,9 +260,9 @@ namespace FlexTFTP
                 textBoxPath.Text = Settings.Default.Preset2Path;
             }
 
-            if (autoPathCheckBox.Checked != Settings.Default.Preset2AutoPath)
+            if (Settings.Default.AutoPath != Settings.Default.Preset2AutoPath)
             {
-                autoPathCheckBox.Checked = Settings.Default.Preset2AutoPath;
+                SetSettingAutoPath(Settings.Default.Preset2AutoPath);
             }
 
             if (maskedTextBoxPort.Text != Settings.Default.Preset2Port)

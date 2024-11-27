@@ -13,7 +13,14 @@ namespace FlexTFTP
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new FlexTftpForm());
+
+            FlexTftpForm form = new FlexTftpForm();
+
+            Application.Run(form);
+
+            int exitCode = form.ActiveError ? 1 : 0;
+            Console.WriteLine("Exitcode: " + exitCode);
+            Environment.Exit(exitCode);
         }
     }
 }
