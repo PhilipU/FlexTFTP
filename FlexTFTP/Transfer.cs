@@ -38,6 +38,24 @@ namespace FlexTFTP
         private int _currentTempFile = 1;
         private bool _activeError = false;
         private System.Threading.Timer _closeTimer = null;
+        private int _percentage;
+        private string _lastError = "";
+
+        public int Percentage
+        {
+            get
+            {
+                return _percentage;
+            }
+        }
+
+        public string LastError
+        {
+            get
+            {
+                return _lastError;
+            }
+        }
 
         public bool ActiveError
         {
@@ -62,6 +80,16 @@ namespace FlexTFTP
         public Transfer(FlexTftpForm form)
         {
             _form = form;
+            _delegateProgress = UpdateProgress;
+            _delegateError = SetTransferFailed;
+            _delegateText = UpdateText;
+            _tempFilePath1 = Path.GetTempFileName();
+            _tempFilePath2 = Path.GetTempFileName();
+        }
+
+        public Transfer()
+        {
+            _form = null;
             _delegateProgress = UpdateProgress;
             _delegateError = SetTransferFailed;
             _delegateText = UpdateText;
@@ -98,7 +126,7 @@ namespace FlexTFTP
 
             if (!File.Exists(file))
             {
-                _form.OutputBox.AddLine("Error: File does not exist!", Color.Red, true);
+                if(_form != null) _form.OutputBox.AddLine("Error: File does not exist!", Color.Red, true);
                 _activeError = true;
                 StopTransfer();
                 return false;
@@ -110,7 +138,7 @@ namespace FlexTFTP
             }
             catch
             {
-                _form.OutputBox.AddLine("Error: Invalid host address!", Color.Red, true);
+                if (_form != null) _form.OutputBox.AddLine("Error: Invalid host address!", Color.Red, true);
                 _activeError = true;
                 StopTransfer();
                 return false;
@@ -154,7 +182,7 @@ namespace FlexTFTP
                 // Copy given file to temp to avoid locking original file
                 //-------------------------------------------------------
 #if DEBUG
-                _form.OutputBox.AddLine("[DEBUG] Created temp file: " + tempFilePath, Color.Gray, true);
+                if(_form != null) _form.OutputBox.AddLine("[DEBUG] Created temp file: " + tempFilePath, Color.Gray, true);
 #endif
                 File.Copy(file, tempFilePath);
 
@@ -164,26 +192,29 @@ namespace FlexTFTP
                 _lastFileSize = _fileStream.Length;
                 _startTime = DateTime.UtcNow;
                 _transfer.Start(_fileStream);
-                _form.SetProgress(1);
-                // Task bar progress
-                var prog = Microsoft.WindowsAPICodePack.Taskbar.TaskbarManager.Instance;
-                prog.SetProgressState(Microsoft.WindowsAPICodePack.Taskbar.TaskbarProgressBarState.Normal);
-                prog.SetProgressValue(1, 100);
+                if (_form != null)
+                {
+                    _form.SetProgress(1);
+                    // Task bar progress
+                    var prog = Microsoft.WindowsAPICodePack.Taskbar.TaskbarManager.Instance;
+                    prog.SetProgressState(Microsoft.WindowsAPICodePack.Taskbar.TaskbarProgressBarState.Normal);
+                    prog.SetProgressValue(1, 100);
+                }
 
                 // Show connect info
                 //------------------
-                _form.ShowConnectScreen(true);
+                if (_form != null) _form.ShowConnectScreen(true);
             }
             catch
             {
-                _form.OutputBox.AddLine("Error: Can not open file!", Color.Red, true);
+                if (_form != null) _form.OutputBox.AddLine("Error: Can not open file!", Color.Red, true);
                 _activeError = true;
                 StopTransfer();
                 return false;
             }
 
-            _form.OutputBox.AddLine("Transfer started (" + address + ")", Color.Black, true);
-            _form.SetTransferStateButtonText("Cancel");
+            if (_form != null) _form.OutputBox.AddLine("Transfer started (" + address + ")", Color.Black, true);
+            if (_form != null) _form.SetTransferStateButtonText("Cancel");
             _activeError = false;
 
             return true;
@@ -210,12 +241,15 @@ namespace FlexTFTP
 
             // Hide connect info
             //------------------
-            _form.ShowConnectScreen(false);
+            if (_form != null) _form.ShowConnectScreen(false);
 
-            _form.SetProgress(0);
-            var prog = Microsoft.WindowsAPICodePack.Taskbar.TaskbarManager.Instance;
-            prog.SetProgressState(Microsoft.WindowsAPICodePack.Taskbar.TaskbarProgressBarState.NoProgress);
-            _form.SetTransferStateButtonText("Download");
+            if (_form != null)
+            {
+                _form.SetProgress(0);
+                var prog = Microsoft.WindowsAPICodePack.Taskbar.TaskbarManager.Instance;
+                prog.SetProgressState(Microsoft.WindowsAPICodePack.Taskbar.TaskbarProgressBarState.NoProgress);
+                _form.SetTransferStateButtonText("Download");
+            }
 
             if(_closeAfterwards)
             {
@@ -225,8 +259,8 @@ namespace FlexTFTP
                 }
                 else
                 {
-                    _form.OutputBox.AddLine();
-                    _form.OutputBox.AddLine("Application will be closed in " + _closeTimerCount + "sec", Color.Black);
+                    if (_form != null) _form.OutputBox.AddLine();
+                    if (_form != null) _form.OutputBox.AddLine("Application will be closed in " + _closeTimerCount + "sec", Color.Black);
 
                     if(_closeTimerCount > 0)
                     {
@@ -251,17 +285,20 @@ namespace FlexTFTP
                 {
                     _closeTimer.Dispose();
                 }
-                
-                _form.Invoke((MethodInvoker)delegate
+
+                if (_form != null)
                 {
-                    _form.Close();
-                });
+                    _form.Invoke((MethodInvoker)delegate { _form.Close(); });
+                }
             }
             else
             {
                 _closeTimerCount--;
                 object[] parametersArray = new object[] { _closeTimerCount + " ", Color.Red };
-                _form.Invoke(_delegateText, parametersArray);
+                if (_form != null)
+                {
+                    _form.Invoke(_delegateText, parametersArray);
+                }
             }
         }
 
@@ -272,27 +309,33 @@ namespace FlexTFTP
 
         private void UpdateText(string text, Color color)
         {
-            _form.OutputBox.AddLine(text, color);
+            if (_form != null) _form.OutputBox.AddLine(text, color);
         }
 
         public void UpdateProgress(TftpTransferProgress progress)
         {
             if (!_transferInProgress) return;
-            int percent = Convert.ToInt32((Convert.ToDouble(progress.TransferredBytes) / (Convert.ToDouble(progress.TotalBytes)) * 100D));
-            if (percent == 0) percent = 1;
-            if (_form.GetProgress() == percent)
+            _percentage = Convert.ToInt32((Convert.ToDouble(progress.TransferredBytes) / (Convert.ToDouble(progress.TotalBytes)) * 100D));
+            if (_percentage == 0) _percentage = 1;
+
+            if (_form != null)
             {
-                return;
+                if (_form.GetProgress() == _percentage)
+                {
+                    return;
+                }
+
+                // Hide connect info
+                //------------------
+                _form.ShowConnectScreen(false);
+
+                _form.SetProgress(_percentage);
+                _form.SetProgress((_percentage > 0 && _percentage < 100) ? _percentage - 1 : _percentage);
+
+                var prog = Microsoft.WindowsAPICodePack.Taskbar.TaskbarManager.Instance;
+                prog.SetProgressValue(_percentage, 100);
             }
 
-            // Hide connect info
-            //------------------
-            _form.ShowConnectScreen(false);
-
-            _form.SetProgress(percent);
-            _form.SetProgress((percent > 0 && percent < 100) ? percent - 1 : percent);
-            var prog = Microsoft.WindowsAPICodePack.Taskbar.TaskbarManager.Instance;
-            prog.SetProgressValue(percent, 100);
         }
 
         public void SetTransferFailed(TftpTransferError error)
@@ -304,13 +347,14 @@ namespace FlexTFTP
             if(_path.StartsWith("cpu") && _file.EndsWith(".s19") && Settings.Default.AutoForce && !_path.Contains("-force") && 
                 error.ToString().Contains("Invalid device type"))
             {
-                _form.OutputBox.AddLine("Failed. Retry with '-force' option", Color.Orange, true);
+                if (_form != null) _form.OutputBox.AddLine("Failed. Retry with '-force' option", Color.Orange, true);
                 _path += " -force";
                 Restart();
             }
             else
             {
-                _form.OutputBox.AddLine("Failed: " + errorMessage, Color.Red, true);
+                if (_form != null) _form.OutputBox.AddLine("Failed: " + errorMessage, Color.Red, true);
+                _lastError = errorMessage;
             }
         }
 
@@ -319,7 +363,7 @@ namespace FlexTFTP
             if (!_transferInProgress) return;
             TimeSpan transferTime = DateTime.UtcNow- _startTime;
             double speed = Math.Round(_lastFileSize/1024D/1024D/transferTime.TotalSeconds, 2);
-            _form.OutputBox.AddLine("Finished in " + Math.Round(transferTime.TotalSeconds) + "s (" + speed + "MB/s)", Color.Green, true);
+            if (_form != null) _form.OutputBox.AddLine("Finished in " + Math.Round(transferTime.TotalSeconds) + "s (" + speed + "MB/s)", Color.Green, true);
             _transferTotalTimeSec += (int)Math.Round(transferTime.TotalSeconds);
             _transferTotalkiloByte += (int)(_lastFileSize / 1024);
             _activeError = false;
@@ -328,31 +372,52 @@ namespace FlexTFTP
 
         public void transfer_OnProgress(ITftpTransfer transfer, TftpTransferProgress progress)
         {
-            FlexTftpForm form = (FlexTftpForm)transfer.UserContext;
+            if (transfer.UserContext != null)
+            {
+                FlexTftpForm form = (FlexTftpForm)transfer.UserContext;
 
-            if (!_transferInProgress) return;
+                if (!_transferInProgress) return;
 
-            object[] parametersArray = new object[] { progress };
-            form.Invoke(_delegateProgress, parametersArray);
+                object[] parametersArray = new object[] { progress };
+                form.Invoke(_delegateProgress, parametersArray);
+            }
+            else
+            {
+                UpdateProgress(progress);
+            }
         }
 
         public void transfer_OnError(ITftpTransfer transfer, TftpTransferError error)
         {
-            FlexTftpForm form = (FlexTftpForm)transfer.UserContext;
+            if (transfer.UserContext != null)
+            {
+                FlexTftpForm form = (FlexTftpForm)transfer.UserContext;
 
-            if (!_transferInProgress) return;
+                if (!_transferInProgress) return;
 
-            object[] parametersArray = new object[] { error };
-            form.Invoke(_delegateError, parametersArray);
+                object[] parametersArray = new object[] { error };
+                form.Invoke(_delegateError, parametersArray);
+            }
+            else
+            {
+                SetTransferFailed(error);
+            }
         }
 
         public void transfer_OnFinshed(ITftpTransfer transfer)
         {
-            FlexTftpForm form = (FlexTftpForm)transfer.UserContext;
+            if (transfer.UserContext != null)
+            {
+                FlexTftpForm form = (FlexTftpForm)transfer.UserContext;
 
-            if (!_transferInProgress) return;
+                if (!_transferInProgress) return;
 
-            form.Invoke(new MethodInvoker(SetTransferFinished));
+                form.Invoke(new MethodInvoker(SetTransferFinished));
+            }
+            else
+            {
+                SetTransferFinished();
+            }
         }
 
         public void CloseAfterwards(bool enabled, int delay)

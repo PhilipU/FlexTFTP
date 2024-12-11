@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
+using System.Linq;
 using System.Windows.Forms;
 
 namespace FlexTFTP
@@ -351,6 +352,15 @@ namespace FlexTFTP
             }
 
             return _linkList[linkIndex - 1];
+        }
+
+        public KnownLink GetLastFilePath()
+        {
+            if (_linkList.Count == 0)
+            {
+                return new KnownLink();
+            }
+            return _linkList.Last();
         }
 
         public void LoadFile(string basePath)

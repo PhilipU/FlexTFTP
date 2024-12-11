@@ -90,109 +90,41 @@ namespace FlexTFTP
 
         private void FlexTFTPForm_Shown(object sender, EventArgs e)
         {
-            // Process command line parameters
-            //--------------------------------
+            // Restore history
+            //----------------
+            try
+            {
+                if (Settings.Default.RestoreHistory)
+                {
+                    OutputBox.LoadFile(_historyFolderPath);
+                    _pathAutoCompleteList.LoadFile(_pathAutoCompleteHistoryFilePath);
+                    _ipAutoCompleteList.LoadFile(_ipAutoCompleteHistoryFilePath);
+                    _lockedSettingsHistory.LoadFile(_lockedSettingsHistoryFilePath);
+                }
+            }
+            catch (Exception)
+            {
+                // ignored
+            }
+
             string[] args = Environment.GetCommandLineArgs();
             if (args.Length > 1)
             {
-                _openedByCommandLine = true;
-
-                // Print info
-                //-----------
-                OutputBox.AddLine("Opened by command line", Color.Black, true);
-
-                // Close application afterwards if started by command line
-                //---------------------------------------------
-                Transfer.CloseAfterwards(true, 3);
-
-                Settings.Default.AutoForce = false;
-
-                // Get path as second argument
-                //----------------------------
-                if (args.Length > 2)
+                if(File.Exists(args[1]))
                 {
-                    OutputBox.AddLine("Target path is set to: " + args[2], Color.Black, true);
-                    if (args[2].Equals("auto", StringComparison.OrdinalIgnoreCase))
-                    {
-                        SetSettingAutoPath(true);
-                    }
-                    else
-                    {
-                        OutputBox.AddLine("Disable auto path", Color.Black, true);
-                        SetSettingAutoPath(false);
-                        Settings.Default.TypeDependendAutpPath = false; // Prevent reenabling auto path due to other checks
-                        SetTargetPath(args[2]);
-                    }
+                    SetFilePath(args[1]);
                 }
-                else
-                {
-                    SetSettingAutoPath(true);
-                }
-
-                // Get target IP as third argument
-                //--------------------------------
-                if (args.Length > 3)
-                {
-                    if (!args[3].Equals("last", StringComparison.OrdinalIgnoreCase))
-                    {
-                        textBoxAddress.Text = args[3];
-                    }
-                }
-
-                // Get target port as fourth argument
-                //-----------------------------------
-                if (args.Length > 4)
-                {
-                    if (!args[4].Equals("last", StringComparison.OrdinalIgnoreCase))
-                    {
-                        maskedTextBoxPort.Text = args[4];
-                    }
-                }
-
-                SetFilePath(args[1]);
-
-                // Close GUI after transfer
-                //-------------------------
-                if (args.Length > 5)
-                {
-                    if (args[5].Equals("notclose", StringComparison.OrdinalIgnoreCase))
-                    {
-                        Transfer.CloseAfterwards(false, 0);
-                        _openedByCommandLine = false;
-                    }
-                    else if (args[5].Equals("close", StringComparison.OrdinalIgnoreCase))
-                    {
-                        Transfer.CloseAfterwards(true, 0);
-                    }
-                }
-
-                Transfer.ToggleState(_openedPath, _targetPath, textBoxAddress.Text, int.Parse(maskedTextBoxPort.Text));
             }
-            // Normal operation
-            //-----------------
             else
             {
-                // Restore history
-                //----------------
-                try
-                {
-                    if (Settings.Default.RestoreHistory)
-                    {
-                        OutputBox.LoadFile(_historyFolderPath);
-                        _pathAutoCompleteList.LoadFile(_pathAutoCompleteHistoryFilePath);
-                        _ipAutoCompleteList.LoadFile(_ipAutoCompleteHistoryFilePath);
-                        _lockedSettingsHistory.LoadFile(_lockedSettingsHistoryFilePath);
-                    }
-                }
-                catch (Exception)
-                {
-                    // ignored
-                }
+                OutputBox.KnownLink knownLink = OutputBox.GetLastFilePath();
+                string lastFile = knownLink.Link;
 
                 // Load last opened file
                 //----------------------
                 if (Settings.Default.RestoreLastOpenedFile &&
                     Settings.Default.LastOpenedFile.Length != 0 &&
+                    lastFile != Settings.Default.LastOpenedFile &&
                     File.Exists(Settings.Default.LastOpenedFile))
                 {
                     SetFilePath(Settings.Default.LastOpenedFile);

@@ -1,8 +1,12 @@
 ﻿FlexTFTP
 
-Last Update: 18.09.2024
-http://flextftp.philipurban.de
+Last Update: 11.12.2024
+https://github.com/PhilipU/FlexTFTP
 (help at end of page)
+
+v4.6
+----
+* Disable GUI when started via CLI
 
 v4.5
 ----
@@ -209,6 +213,8 @@ Path
     (e.g. "cpu/application"). 
     Set to "auto" if auto-path option 
     should be used.
+    Set to "auto-force" to also
+    ignore wrong device type
 IP
     Target IPv4 address.
     Set to "last" if last saved IP 
