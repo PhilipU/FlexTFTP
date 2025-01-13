@@ -27,7 +27,7 @@ namespace FlexTFTP
         private int _closeTimerCount;
         private long _transferTotalTimeSec;
         private long _transferTotalkiloByte;
-        private long _lastFileSize;
+        private long _lastFileSize = 0;
         private string _path = "";
         private string _file = "";
         private string _address = "";
@@ -40,6 +40,14 @@ namespace FlexTFTP
         private System.Threading.Timer _closeTimer = null;
         private int _percentage;
         private string _lastError = "";
+
+        public long LastFileSize
+        {
+            get
+            {
+                return _lastFileSize;
+            }
+        }
 
         public int Percentage
         {

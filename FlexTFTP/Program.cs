@@ -129,6 +129,7 @@ namespace FlexTFTP
                 transfer.ToggleState(file, targetPath, targetIp, port);
 
                 Console.WriteLine("Transfer started...");
+                DateTime startTime = DateTime.UtcNow;
 
                 int lastPercentage = 0;
                 while (true)
@@ -167,7 +168,9 @@ namespace FlexTFTP
                 }
                 else
                 {
-                    Console.WriteLine("Transfer finished!");
+                    TimeSpan transferTime = DateTime.UtcNow - startTime;
+                    double speed = Math.Round(transfer.LastFileSize / 1024D / 1024D / transferTime.TotalSeconds, 2);
+                    Console.WriteLine("Transfer finished in " + Math.Round(transferTime.TotalSeconds) + "s (" + speed + "MB/s)");
                 }
 
                 int exitCode = transfer.ActiveError ? 1 : 0;
