@@ -1,12 +1,13 @@
 ﻿FlexTFTP
 
-Last Update: 11.12.2024
+Last Update: 13.01.2025
 https://github.com/PhilipU/FlexTFTP
 (help at end of page)
 
 v4.6
 ----
 * Disable GUI when started via CLI
+* Increase transfer timeout to 10s
 
 v4.5
 ----
@@ -200,7 +201,7 @@ Command line parameters:
 
 FlexTFTP.exe 
     <TargetFile> 
-    [Path | "auto"]
+    [Path | "auto" | "auto-force"]
     [IP | "last"]
     [Port | "last"]
     [Afterwards action "close"]
@@ -235,7 +236,7 @@ Action
     after a few seconds.
 
 Example:
-FlexTFTP "myFile.s19"
+FlexTFTP "myFile.s19" auto-force
 FlexTFTP "myFile.s19" auto last last close
 FlexTFTP "myFile.s19" cpu/preloader
 FlexTFTP "myFile.s19" auto 10.50.0.10 69 close
