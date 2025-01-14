@@ -107,6 +107,9 @@ namespace FlexTFTP
                 // ignored
             }
 
+            OutputBox.AddLine("");
+            OutputBox.AddLine("Application started.", Color.Gray, true);
+
             string[] args = Environment.GetCommandLineArgs();
             if (args.Length > 1)
             {
@@ -117,17 +120,15 @@ namespace FlexTFTP
             }
             else
             {
-                OutputBox.KnownLink knownLink = OutputBox.GetLastFilePath();
-                string lastFile = knownLink.Link;
+                string lastOpenedFile = Settings.Default.LastOpenedFile;
 
                 // Load last opened file
                 //----------------------
                 if (Settings.Default.RestoreLastOpenedFile &&
-                    Settings.Default.LastOpenedFile.Length != 0 &&
-                    lastFile != Settings.Default.LastOpenedFile &&
-                    File.Exists(Settings.Default.LastOpenedFile))
+                    lastOpenedFile.Length != 0 &&
+                    File.Exists(lastOpenedFile))
                 {
-                    SetFilePath(Settings.Default.LastOpenedFile);
+                    SetFilePath(lastOpenedFile);
                 }
             }
         }
