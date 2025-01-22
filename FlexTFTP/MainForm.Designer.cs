@@ -287,12 +287,14 @@ namespace FlexTFTP
             this.MinimumSize = new System.Drawing.Size(300, 300);
             this.Name = "FlexTftpForm";
             this.Text = "FlexTFTP";
+            this.Activated += new System.EventHandler(this.FlexTftpForm_Activated);
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.FlexTftpForm_FormClosing);
             this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.FlexTFTPForm_FormClosed);
             this.Load += new System.EventHandler(this.Form1_Load);
             this.Shown += new System.EventHandler(this.FlexTFTPForm_Shown);
             this.DragDrop += new System.Windows.Forms.DragEventHandler(this.FlexTFTPForm_DragDrop);
             this.DragEnter += new System.Windows.Forms.DragEventHandler(this.FlexTFTPForm_DragEnter);
+            this.Enter += new System.EventHandler(this.FlexTftpForm_Enter);
             this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.ToggleKeyDown);
             ((System.ComponentModel.ISupportInitialize)(this.pictureBoxSettings)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();

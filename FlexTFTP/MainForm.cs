@@ -1,4 +1,5 @@
 ﻿using FlexTFTP.Properties;
+using Microsoft.WindowsAPICodePack.Taskbar;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
@@ -420,6 +421,21 @@ namespace FlexTFTP
             //OutputBox.AddLine("Auto Path Set:" + autoPath, Color.Black, true);
             Settings.Default.AutoPath = autoPath;
             autoPathCheckBox.Checked = autoPath;
+        }
+
+        private void FlexTftpForm_Enter(object sender, EventArgs e)
+        {
+            
+        }
+
+        private void FlexTftpForm_Activated(object sender, EventArgs e)
+        {
+            var prog = TaskbarManager.Instance;
+            if (!Transfer.InProgress())
+            {
+                prog.SetProgressValue(0, 100);
+                prog.SetProgressState(TaskbarProgressBarState.NoProgress);
+            }
         }
     }
 }

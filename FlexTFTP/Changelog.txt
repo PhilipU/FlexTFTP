@@ -1,8 +1,12 @@
 ﻿FlexTFTP
 
-Last Update: 13.01.2025
+Last Update: 22.01.2025
 https://github.com/PhilipU/FlexTFTP
 (help at end of page)
+
+v4.7
+----
+* Blink in taskbar when current file was updated
 
 v4.6
 ----

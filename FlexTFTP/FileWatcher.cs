@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.WindowsAPICodePack.Taskbar;
+using System;
 using System.Diagnostics;
 using System.IO;
 using System.Windows.Forms;
@@ -74,6 +75,14 @@ namespace FlexTFTP
             {
                 _lastCheckedFileChangeTime = lastFileChangeTime;
                 _form.OutputBox.AddLine("File was updated. New size: " + Utils.GetReadableSize(fileSizeBytes), System.Drawing.Color.Black, true);
+
+                // Show update in taskbar (yellow) if not in focus
+                if (Form.ActiveForm != _form)
+                {
+                    var prog = TaskbarManager.Instance;
+                    prog.SetProgressValue(100, 100);
+                    prog.SetProgressState(TaskbarProgressBarState.Paused);
+                }
             }
         }
     }
