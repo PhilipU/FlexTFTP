@@ -27,7 +27,15 @@ jobs:
       with:
         dotnet-version: '8.0.x'
 
+    - name: Setup NuGet
+      uses: nuget/setup-nuget@v2
+      with:
+          nuget-version: '5.x'
+
     - name: Restore NuGet packages
+      run: nuget restore ${{ env.Solution_Name }}.sln
+
+    - name: Restore dependencies
       run: dotnet restore
 
     - name: Build solution
