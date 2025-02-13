@@ -159,53 +159,50 @@ namespace FlexTFTP
             //-----------------
             Transfer.Cleanup();
 
-            if (!_openedByCommandLine)
+            if (Left > -1000 && Top > -1000)
             {
-                if (Left > -1000 && Top > -1000)
+                Settings.Default.WindowPositionX = Left;
+                Settings.Default.WindowPositionY = Top;
+            }
+
+            // Save history
+            //-------------
+            if (Settings.Default.RestoreHistory)
+            {
+                try
                 {
-                    Settings.Default.WindowPositionX = Left;
-                    Settings.Default.WindowPositionY = Top;
+                    OutputBox.SaveFile(_historyFolderPath);
+                    _pathAutoCompleteList.SaveFile(_pathAutoCompleteHistoryFilePath);
+                    _ipAutoCompleteList.SaveFile(_ipAutoCompleteHistoryFilePath);
+                    _lockedSettingsHistory.SaveFile(_lockedSettingsHistoryFilePath);
                 }
-
-                // Save history
-                //-------------
-                if (Settings.Default.RestoreHistory)
+                catch (Exception)
                 {
-                    try
-                    {
-                        OutputBox.SaveFile(_historyFolderPath);
-                        _pathAutoCompleteList.SaveFile(_pathAutoCompleteHistoryFilePath);
-                        _ipAutoCompleteList.SaveFile(_ipAutoCompleteHistoryFilePath);
-                        _lockedSettingsHistory.SaveFile(_lockedSettingsHistoryFilePath);
-                    }
-                    catch (Exception)
-                    {
-                        // ignored
-                    }
+                    // ignored
                 }
+            }
 
-                // Save settings
-                //--------------
-                Settings.Default.Save();
+            // Save settings
+            //--------------
+            Settings.Default.Save();
 
-                //----------------
-                // Backup settings
-                //----------------
+            //----------------
+            // Backup settings
+            //----------------
 
-                // Copy all settings files in parent settings directory
-                //-----------------------------------------------------
-                string currentVersionFolder = Path.GetDirectoryName(_historyFolderPath);
-                if (currentVersionFolder != null)
+            // Copy all settings files in parent settings directory
+            //-----------------------------------------------------
+            string currentVersionFolder = Path.GetDirectoryName(_historyFolderPath);
+            if (currentVersionFolder != null)
+            {
+                string parentFolder = Directory.GetParent(Directory.GetParent(currentVersionFolder).FullName)
+                    .FullName;
+                string[] files = Directory.GetFiles(currentVersionFolder);
+
+                foreach (string filePath in files)
                 {
-                    string parentFolder = Directory.GetParent(Directory.GetParent(currentVersionFolder).FullName)
-                        .FullName;
-                    string[] files = Directory.GetFiles(currentVersionFolder);
-
-                    foreach (string filePath in files)
-                    {
-                        string fileName = Path.GetFileName(filePath);
-                        File.Copy(filePath, Path.Combine(parentFolder, fileName), true);
-                    }
+                    string fileName = Path.GetFileName(filePath);
+                    File.Copy(filePath, Path.Combine(parentFolder, fileName), true);
                 }
             }
         }
