@@ -63,36 +63,34 @@ namespace FlexTFTP.Properties {
         /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die FlexTFTP
         ///
-        ///Last Update: 20.01.2023
-        ///http://flextftp.philipurban.de
+        ///Last Update: 26.02.2025
+        ///https://github.com/PhilipU/FlexTFTP
         ///(help at end of page)
         ///
-        ///v4.4
+        ///v4.9
         ///----
-        ///* Added new devices for second SoC projects
+        ///* TBD: Work in progress
         ///
-        ///v4.3
+        ///v4.8
         ///----
-        ///* Added new device FlexSystem-M
-        ///* Added new device FlexSystem-XS
+        ///* Enable Auto Update via GutHub
+        ///* Added new device FL3X Interface-S
+        ///* Added new device FL3X Interface-L
+        ///* Added new device FL3X Interface-PXIe
+        ///* Added new device FL3X Interface-PCIe
         ///
-        ///v4.2
+        ///v4.7
         ///----
-        ///* Print used target address for each transfer
-        ///* Added new Path for ESP32 WiFi Firmware
+        ///* Blink in taskbar when current file was updated
         ///
-        ///v4.1
+        ///v4.6
         ///----
-        ///* Fixed file monitoring
+        ///* Disable GUI when started via CLI
+        ///* Increase transfer timeout to 10s
         ///
-        ///v4.0
+        ///v4.5
         ///----
-        ///* Added new device FlexDevice-L 3rd Gen
-        ///* Added new device FlexDevice-L 2SoC 3rd Gen
-        ///
-        ///v3.9
-        ///----
-        ///* Added new device Flex [Rest der Zeichenfolge wurde abgeschnitten]&quot;; ähnelt.
+        ///* Update to [Rest der Zeichenfolge wurde abgeschnitten]&quot;; ähnelt.
         /// </summary>
         internal static string Changelog {
             get {
