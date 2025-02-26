@@ -23,7 +23,7 @@ namespace FlexTFTP
             _fileWatcher = new FileWatcher(this);
             _onlineChecker = new OnlineChecker(null, OnlineCheckerCallback);
 
-            Text += " v" + Utils.CurrentVersion.ToString(CultureInfo.InvariantCulture).Replace(',', '.');
+            Text += " " + Utils.CurrentVersionString;
 #if DEBUG
             Text += " [DEBUG]";
 #endif

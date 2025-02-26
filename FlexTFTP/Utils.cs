@@ -5,6 +5,7 @@ using System.Globalization;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
+using System.Web;
 using System.Windows.Forms;
 
 namespace FlexTFTP
@@ -75,6 +76,14 @@ namespace FlexTFTP
                 }
 
                 return _currentVersion;
+            }
+        }
+
+        public static string CurrentVersionString
+        {
+            get
+            {
+                return string.Format("v{0:0.0}", CurrentVersion).Replace(",",".");
             }
         }
 

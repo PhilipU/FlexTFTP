@@ -58,7 +58,7 @@ namespace FlexTFTP
                 // Print info
                 //-----------
                 string appTitle = "FlexTFTP";
-                appTitle += " v" + Utils.CurrentVersion.ToString(CultureInfo.InvariantCulture).Replace(',', '.');
+                appTitle += " " + Utils.CurrentVersionString;
 #if DEBUG
                 appTitle += " [DEBUG]";
 #endif
