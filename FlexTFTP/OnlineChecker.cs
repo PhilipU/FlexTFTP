@@ -55,8 +55,7 @@ namespace FlexTFTP
         {
             if(_cyclicThread != null)
             {
-                _cyclicThread.Abort();
-                _cyclicThread = null;
+                _cyclicIntervalMs = 0;
             }
         }
 
@@ -70,6 +69,11 @@ namespace FlexTFTP
         {
             while(true)
             {
+                if(_cyclicIntervalMs == 0)
+                {
+                    return; // Stop thread
+                }
+
                 AsyncOnlineCheck();
 
                 Thread.Sleep(_cyclicIntervalMs);

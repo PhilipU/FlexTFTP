@@ -215,7 +215,12 @@ namespace FlexTFTP
         {
             try
             {
-                Process.Start(_hotInfoLink);
+                var ps = new ProcessStartInfo(_hotInfoLink)
+                {
+                    UseShellExecute = true,
+                    Verb = "open"
+                };
+                Process.Start(ps);
             }
             catch (InvalidOperationException)
             {
