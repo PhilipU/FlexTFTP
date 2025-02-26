@@ -76,7 +76,7 @@ namespace FlexTFTP
             checkBoxUpdateBetaRing.Checked = Settings.Default.UpdateBetaRing;
             labelNewestVersion.Text = "Newest version: " + _flexTftPform.Updater.NewestVersion.ToString(CultureInfo.InvariantCulture).Replace(',','.') +
                 " [" + _flexTftPform.Updater.NewestDate + "]";
-            labelCurrentVersion.Text = "Current version:  " + Utils.CurrentVersion.ToString(CultureInfo.InvariantCulture).Replace(',', '.') +
+            labelCurrentVersion.Text = "Current version: " + Utils.CurrentVersionString +
                 " [" + currentDateString + "]";
 
             checkBoxRestoreWindowPos.Checked = Settings.Default.RestoreWindowPosition;

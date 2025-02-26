@@ -4,6 +4,8 @@ using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Runtime.InteropServices;
+using System.Text.RegularExpressions;
+using System.Web;
 using System.Windows.Forms;
 
 namespace FlexTFTP
@@ -58,7 +60,32 @@ namespace FlexTFTP
                    new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc)).TotalSeconds;
         }
 
-        public static double CurrentVersion => Convert.ToDouble(Application.ProductVersion.Substring(0, Application.ProductVersion.Length - 4), CultureInfo.InvariantCulture);
+        private static double _currentVersion = 0;
+        public static double CurrentVersion {
+            get
+            {
+                if (_currentVersion == 0)
+                {
+                    string pattern = @"(\d+\.\d+).*";
+                    Regex regex = new Regex(pattern);
+                    Match match = regex.Match(Application.ProductVersion);
+                    if (match.Success)
+                    {
+                        _currentVersion = double.Parse(match.Groups[1].Captures[0].Value, CultureInfo.InvariantCulture);
+                    }
+                }
+
+                return _currentVersion;
+            }
+        }
+
+        public static string CurrentVersionString
+        {
+            get
+            {
+                return string.Format("v{0:0.0}", CurrentVersion).Replace(",",".");
+            }
+        }
 
         public static string GetReadableSize(double bytes)
         {

@@ -14,6 +14,7 @@ using System.Text.RegularExpressions;
 using System.Globalization;
 using System.IO.Compression;
 using System.Linq;
+using Nito.AsyncEx;
 
 namespace FlexTFTP
 {
@@ -23,7 +24,6 @@ namespace FlexTFTP
         UpdateVersion _newestVersion;
         readonly string _downloadPath;
         string _downloadedFilePath;
-        string _currentDateString;
         bool _asyncInProcess;
 
         bool _isBeta;
@@ -36,8 +36,6 @@ namespace FlexTFTP
         public bool Beta => _isBeta;
 
         public string NewestDate => (_newestVersion != null) ? _newestVersion.DateString : "-";
-
-        public string CurrentDate => _currentDateString;
 
         public string NewestVersionName => (_newestVersion != null) ? _newestVersion.Name : "-";
 
@@ -78,71 +76,70 @@ namespace FlexTFTP
 
         public bool CheckForUpdate(bool acceptBeta)
         {
-            DateTime currentDateTime = File.GetLastWriteTime(GetType().Assembly.Location);
-            _currentDateString = currentDateTime.ToString("dd.MM.yyyy HH:mm");
-            double currentDate = Utils.DateTimeToUnixTimestamp(currentDateTime);
-
             try
             {
-                using (WebClient wc = new WebClient())
+                using (HttpClient client = new HttpClient())
                 {
                     // User agent must be set for GitHub API otherwise 403 Error is returned
                     // See: https://stackoverflow.com/questions/76490209/c-sharp-403-whith-github-api-request
-                    wc.Headers.Add("user-agent", "Mozilla/4.0 (compatible; MSIE 6.0; " +
+                    client.DefaultRequestHeaders.Add("user-agent", "Mozilla/4.0 (compatible; MSIE 6.0; " +
                                   "Windows NT 5.2; .NET CLR 1.0.3705;)");
 
-                    var apiResponse = wc.DownloadString(Settings.Default.UpdateURL);
+                    var apiResponse = AsyncContext.Run(() => client.GetStringAsync(Settings.Default.UpdateURL));
 
-                    List<JObject> jsonArray = JsonConvert.DeserializeObject<List<JObject>>(apiResponse);
+                    List<JObject>? jsonArray = JsonConvert.DeserializeObject<List<JObject>>(apiResponse);
 
-                    foreach(var jsonObject in jsonArray)
+                    if (jsonArray != null)
                     {
-                        UpdateVersion releaseVersion = new UpdateVersion();
-
-                        releaseVersion.Name = jsonObject["name"].ToString();
-                        releaseVersion.IsBeta = releaseVersion.Name.Contains("beta");
-                        releaseVersion.UpdateLink = jsonObject["html_url"].ToString();
-                        releaseVersion.DateString = jsonObject["published_at"].ToString();
-
-                        // Find version
+                        foreach (var jsonObject in jsonArray)
                         {
-                            string pattern = @".*v(\d+\.\d+).*";
-                            Regex regex = new Regex(pattern);
-                            Match match = regex.Match(releaseVersion.Name);
-                            if(match.Success)
-                            {
-                                releaseVersion.Version = double.Parse(match.Groups[1].Captures[0].Value, CultureInfo.InvariantCulture);
-                            }
-                            else
-                            {
-                                continue; // Skip release without parsable version
-                            }
-                        }
+                            UpdateVersion releaseVersion = new UpdateVersion();
 
-                        // Find update link
-                        {
-                            string pattern = @".*\.zip]\((.*)\)";
-                            Regex regex = new Regex(pattern);
-                            Match match = regex.Match(jsonObject["body"].ToString());
-                            if (match.Success)
+                            releaseVersion.Name = jsonObject["name"].ToString();
+                            releaseVersion.IsBeta = releaseVersion.Name.Contains("beta");
+                            releaseVersion.UpdateLink = jsonObject["html_url"].ToString();
+                            releaseVersion.DateString = jsonObject["published_at"].ToString();
+
+                            // Find version
                             {
-                                releaseVersion.DownloadLink = match.Groups[1].Captures[0].Value;
+                                string pattern = @".*v(\d+\.\d+).*";
+                                Regex regex = new Regex(pattern);
+                                Match match = regex.Match(releaseVersion.Name);
+                                if (match.Success)
+                                {
+                                    releaseVersion.Version = double.Parse(match.Groups[1].Captures[0].Value, CultureInfo.InvariantCulture);
+                                }
+                                else
+                                {
+                                    continue; // Skip release without parsable version
+                                }
                             }
 
-                            if(!match.Success || !releaseVersion.DownloadLink.EndsWith(".zip"))
+                            // Find update link
                             {
-                                continue; // Skip release without download link
+                                string pattern = @".*\.zip]\((.*)\)";
+                                Regex regex = new Regex(pattern);
+                                Match match = regex.Match(jsonObject["body"].ToString());
+                                if (match.Success)
+                                {
+                                    releaseVersion.DownloadLink = match.Groups[1].Captures[0].Value;
+                                }
+
+                                if (!match.Success || !releaseVersion.DownloadLink.EndsWith(".zip"))
+                                {
+                                    continue; // Skip release without download link
+                                }
                             }
-                        }
 
-                        if(releaseVersion.IsBeta && !acceptBeta)
-                        {
-                            continue;
-                        }
+                            if (releaseVersion.IsBeta && !acceptBeta)
+                            {
+                                continue;
+                            }
 
-                        if (_newestVersion == null || releaseVersion.Version > _newestVersion.Version)
-                        {
-                            _newestVersion = releaseVersion;
+                            if (_newestVersion == null || releaseVersion.Version > _newestVersion.Version)
+                            {
+                                _newestVersion = releaseVersion;
+                            }
                         }
                     }
                 }

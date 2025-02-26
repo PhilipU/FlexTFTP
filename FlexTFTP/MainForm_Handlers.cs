@@ -37,6 +37,11 @@ namespace FlexTFTP
 
         private void outputTextBox_LinkClicked(object sender, LinkClickedEventArgs e)
         {
+            if(e.LinkText == null)
+            {
+                return;
+            }
+
             if (e.LinkText.Contains("http://"))
             {
                 Process.Start(e.LinkText);
@@ -134,12 +139,21 @@ namespace FlexTFTP
 
         private void FlexTFTPForm_DragEnter(object sender, DragEventArgs e)
         {
-            if (e.Data.GetDataPresent(DataFormats.FileDrop)) e.Effect = DragDropEffects.Copy;
+            if (e.Data != null && e.Data.GetDataPresent(DataFormats.FileDrop)) e.Effect = DragDropEffects.Copy;
         }
 
         private void FlexTFTPForm_DragDrop(object sender, DragEventArgs e)
         {
-            string[] files = (string[])e.Data.GetData(DataFormats.FileDrop);
+            if(e.Data == null)
+            { 
+                return;
+            }
+            string[]? files = (string[]?)e.Data.GetData(DataFormats.FileDrop);
+            if(files == null)
+            {
+                return;
+            }
+
             foreach (string file in files)
             {
                 SetFilePath(file);
@@ -201,7 +215,12 @@ namespace FlexTFTP
         {
             try
             {
-                Process.Start(_hotInfoLink);
+                var ps = new ProcessStartInfo(_hotInfoLink)
+                {
+                    UseShellExecute = true,
+                    Verb = "open"
+                };
+                Process.Start(ps);
             }
             catch (InvalidOperationException)
             {

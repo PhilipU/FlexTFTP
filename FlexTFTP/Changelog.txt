@@ -4,9 +4,9 @@ Last Update: 26.02.2025
 https://github.com/PhilipU/FlexTFTP
 (help at end of page)
 
-v4.9
+v5.0
 ----
-* TBD: Work in progress
+* Migrate to .NET 8
 
 v4.8
 ----

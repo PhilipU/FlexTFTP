@@ -16,7 +16,7 @@ namespace FlexTFTP
         private string _openedPath;
         private string _targetPath = "";
         public Transfer Transfer;
-        private string _processedPath;
+        private string? _processedPath;
         private Updater _updater;
         private string _hotInfoLink = "";
         private readonly string _historyFolderPath;
@@ -97,11 +97,8 @@ namespace FlexTFTP
             if(Settings.Default.AutoUpdate)
             {
                 DialogResult dialogResult = MessageBox.Show("Do you want to update to " + updater.NewestVersionName + 
-                    " (" + ((updater.Beta)? "Beta" : "Stable") + ")\r\nfrom " + updater.NewestDate
-#if DEBUG 
-                    + " [Current: " + updater.CurrentDate + "]" 
-#endif
-                    ,"Update Available", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+                    " (" + ((updater.Beta)? "Beta" : "Stable") + ")\r\nfrom " + updater.NewestDate,
+                    "Update Available", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
                 if (dialogResult == DialogResult.Yes)
                 {
                     updater.ProcessDownload();
