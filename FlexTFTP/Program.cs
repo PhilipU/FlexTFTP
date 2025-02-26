@@ -1,5 +1,6 @@
 ﻿using FlexTFTP.Properties;
 using System;
+using System.Globalization;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Threading;
@@ -57,8 +58,7 @@ namespace FlexTFTP
                 // Print info
                 //-----------
                 string appTitle = "FlexTFTP";
-                appTitle += " v" + System.Windows.Forms.Application.ProductVersion.Substring(0,
-                    System.Windows.Forms.Application.ProductVersion.Length - 4);
+                appTitle += " v" + Utils.CurrentVersion.ToString(CultureInfo.InvariantCulture).Replace(',', '.');
 #if DEBUG
                 appTitle += " [DEBUG]";
 #endif

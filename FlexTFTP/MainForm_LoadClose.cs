@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Configuration;
 using System.Diagnostics;
 using System.Drawing;
+using System.Globalization;
 using System.IO;
 using System.Net;
 using System.Windows.Forms;
@@ -22,7 +23,7 @@ namespace FlexTFTP
             _fileWatcher = new FileWatcher(this);
             _onlineChecker = new OnlineChecker(null, OnlineCheckerCallback);
 
-            Text += " v" + Application.ProductVersion.Substring(0, Application.ProductVersion.Length - 4);
+            Text += " v" + Utils.CurrentVersion.ToString(CultureInfo.InvariantCulture).Replace(',', '.');
 #if DEBUG
             Text += " [DEBUG]";
 #endif
