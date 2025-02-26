@@ -24,7 +24,6 @@ namespace FlexTFTP
         private readonly string _pathAutoCompleteHistoryFilePath;
         private readonly string _ipAutoCompleteHistoryFilePath;
         private readonly string _lockedSettingsHistoryFilePath;
-        private bool _openedByCommandLine;
         private AutoCompleteList _pathAutoCompleteList;
         private AutoCompleteList _ipAutoCompleteList;
         private LockedSettingsHistory _lockedSettingsHistory;
