@@ -48,7 +48,7 @@
       <Value Profile="(Default)" />
     </Setting>
     <Setting Name="UpdateURL" Type="System.String" Scope="User">
-      <Value Profile="(Default)">http://flextftp.philipurban.de/update-v2.php</Value>
+      <Value Profile="(Default)">https://api.github.com/repos/PhilipU/FlexTFTP/releases</Value>
     </Setting>
     <Setting Name="UpdateEnabled" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">True</Value>

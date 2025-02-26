@@ -148,6 +148,19 @@ namespace FlexTFTP
             { "3-00950A01_distribution.fpga2", "fpga2/distribution" },
             { "3-00950A01_application.fpga2", "fpga2/application"   },
 
+
+            /* FlexInterface-S */
+            { "3-00862A01_distribution.s19", "cpu/distribution"     },
+
+            /* FlexInterface-L */
+            { "3-00872A01_distribution.s19", "cpu/distribution"     },
+
+            /* FlexInterface-PXIe */
+            { "3-00942A01_distribution.s19", "cpu/distribution"     },
+
+            /* FlexInterface-PCIe */
+            { "3-00952A01_distribution.s19", "cpu/distribution"     },
+
             /* WIFI Application (ESP32 Extension Board */
             { "3-00870V01_application.s19", "wifi/application"      },
 

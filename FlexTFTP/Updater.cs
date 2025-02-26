@@ -1,4 +1,7 @@
 ﻿using FlexTFTP.Properties;
+using MS.WindowsAPICodePack.Internal;
+using Newtonsoft.Json.Linq;
+using Newtonsoft.Json;
 using System;
 using System.Diagnostics;
 using System.IO;
@@ -6,6 +9,11 @@ using System.Net;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Xml.Linq;
+using System.Collections.Generic;
+using System.Text.RegularExpressions;
+using System.Globalization;
+using System.IO.Compression;
+using System.Linq;
 
 namespace FlexTFTP
 {
@@ -14,7 +22,7 @@ namespace FlexTFTP
         bool _updateAvailable;
         UpdateVersion _newestVersion;
         readonly string _downloadPath;
-        string _downloadedFileName;
+        string _downloadedFilePath;
         string _currentDateString;
         double _newestDate;
         bool _asyncInProcess;
@@ -69,7 +77,7 @@ namespace FlexTFTP
             }).Start();
         }
 
-        public bool CheckForUpdate(bool beta)
+        public bool CheckForUpdate(bool acceptBeta)
         {
             DateTime currentDateTime = File.GetLastWriteTime(GetType().Assembly.Location);
             _currentDateString = currentDateTime.ToString("dd.MM.yyyy HH:mm");
@@ -77,32 +85,68 @@ namespace FlexTFTP
 
             try
             {
-                var document = XDocument.Load(Settings.Default.UpdateURL);
-                XElement versions = document.Element("versions");
-
-                do
+                using (WebClient wc = new WebClient())
                 {
-                    UpdateVersion ringVersion = new UpdateVersion();
-                    XElement updateRing = null;
-                    if (versions != null) updateRing = versions.Element(beta ? "beta" : "stable");
+                    // User agent must be set for GitHub API otherwise 403 Error is returned
+                    // See: https://stackoverflow.com/questions/76490209/c-sharp-403-whith-github-api-request
+                    wc.Headers.Add("user-agent", "Mozilla/4.0 (compatible; MSIE 6.0; " +
+                                  "Windows NT 5.2; .NET CLR 1.0.3705;)");
 
-                    XElement newest = updateRing?.Element("newest");
-                    if (newest != null)
-                    {
-                        ringVersion.Version = (double) newest.Element("version");
-                        ringVersion.Name = (string) newest.Element("name");
-                        ringVersion.UpdateLink = (string) newest.Element("link");
-                        ringVersion.DownloadLink = (string) newest.Element("direct-link");
-                        ringVersion.DateString = (string) newest.Element("date");
-                    }
+                    var apiResponse = wc.DownloadString(Settings.Default.UpdateURL);
 
-                    if (_newestVersion == null || ringVersion.Version > _newestVersion.Version)
+                    List<JObject> jsonArray = JsonConvert.DeserializeObject<List<JObject>>(apiResponse);
+
+                    foreach(var jsonObject in jsonArray)
                     {
-                        _newestVersion = ringVersion;
+                        UpdateVersion releaseVersion = new UpdateVersion();
+
+                        releaseVersion.Name = jsonObject["name"].ToString();
+                        releaseVersion.IsBeta = releaseVersion.Name.Contains("beta");
+                        releaseVersion.UpdateLink = jsonObject["html_url"].ToString();
+                        releaseVersion.DateString = jsonObject["published_at"].ToString();
+
+                        // Find version
+                        {
+                            string pattern = @".*v(\d+\.\d+).*";
+                            Regex regex = new Regex(pattern);
+                            Match match = regex.Match(releaseVersion.Name);
+                            if(match.Success)
+                            {
+                                releaseVersion.Version = double.Parse(match.Groups[1].Captures[0].Value, CultureInfo.InvariantCulture);
+                            }
+                            else
+                            {
+                                continue; // Skip release without parsable version
+                            }
+                        }
+
+                        // Find update link
+                        {
+                            string pattern = @".*\.zip]\((.*)\)";
+                            Regex regex = new Regex(pattern);
+                            Match match = regex.Match(jsonObject["body"].ToString());
+                            if (match.Success)
+                            {
+                                releaseVersion.DownloadLink = match.Groups[1].Captures[0].Value;
+                            }
+
+                            if(!match.Success || !releaseVersion.DownloadLink.EndsWith(".zip"))
+                            {
+                                continue; // Skip release without download link
+                            }
+                        }
+
+                        if(releaseVersion.IsBeta && !acceptBeta)
+                        {
+                            continue;
+                        }
+
+                        if (_newestVersion == null || releaseVersion.Version > _newestVersion.Version)
+                        {
+                            _newestVersion = releaseVersion;
+                        }
                     }
-                    if (ringVersion.Version >= Utils.CurrentVersion || !beta) break;
-                    beta = false;
-                } while (true);
+                }
             }
 #if !DEBUG
             catch (Exception)
@@ -126,10 +170,10 @@ namespace FlexTFTP
                 _updateAvailable = false;
                 return false;
             }
-            _newestDate = Utils.DateTimeToUnixTimestamp(DateTime.Parse(_newestVersion.DateString));
-            if (_newestVersion.Version > Utils.CurrentVersion || (beta && _newestDate > currentDate))
+
+            if (_newestVersion.Version > Utils.CurrentVersion)
             {
-                _isBeta = beta;
+                _isBeta = _newestVersion.IsBeta;
                 _updateAvailable = true;
                 return true;
             }
@@ -145,15 +189,29 @@ namespace FlexTFTP
                 return false;
             }
 
-            _downloadedFileName = (_newestVersion.Name + ".exe").Replace(' ', '_');
-
             // Download file
             //--------------
             try
             {
                 using (var client = new WebClient())
                 {
-                    client.DownloadFile(_newestVersion.DownloadLink, _downloadPath + "/" + _downloadedFileName);
+                    string localFile = Path.Combine(_downloadPath, Path.GetFileName(_newestVersion.DownloadLink));
+                    if(File.Exists(localFile))
+                    {
+                        File.Delete(localFile);
+                    }
+                    client.DownloadFile(_newestVersion.DownloadLink, localFile);
+
+                    string localFolder = localFile.Replace(".zip", "");
+                    if (Directory.Exists(localFolder))
+                    {
+                        Directory.Delete(localFolder, true);
+                    }
+                    Directory.CreateDirectory(localFolder);
+                    ZipFile.ExtractToDirectory(localFile, localFolder);
+
+                    // Search for .exe in unpacked folder
+                    _downloadedFilePath = Directory.EnumerateFiles(localFolder, "*.exe", SearchOption.AllDirectories).FirstOrDefault();
                 }
             }
             catch(Exception)
@@ -169,7 +227,7 @@ namespace FlexTFTP
             StreamWriter updateDoStream = new StreamWriter(_downloadPath + "\\" + "update_do.cmd");
             StreamWriter updateStartStream = new StreamWriter(_downloadPath + "\\" + "update_start.cmd");
 
-            if (string.IsNullOrEmpty(_downloadedFileName))
+            if (string.IsNullOrEmpty(_downloadedFilePath))
             {
                 return false;
             }
@@ -226,7 +284,7 @@ namespace FlexTFTP
             // Copy new files
             //---------------
             updateDoStream.WriteLine("echo Copy new version...");
-            updateDoStream.WriteLine("copy \"" + (_downloadPath + "\\" + _downloadedFileName) + "\" \"" + currentRunningFilePath + "\" >nul 2>&1");
+            updateDoStream.WriteLine("copy \"" + _downloadedFilePath + "\" \"" + currentRunningFilePath + "\" >nul 2>&1");
 
             // Start updated application
             //--------------------------

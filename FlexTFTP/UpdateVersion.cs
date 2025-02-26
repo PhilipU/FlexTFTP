@@ -8,6 +8,8 @@
 
         public double Version { get; set; }
 
+        public bool IsBeta { get; set; }
+
         public string DownloadLink { get; set; }
 
         public string DateString { get; set; }

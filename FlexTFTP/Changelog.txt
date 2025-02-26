@@ -1,8 +1,16 @@
 ﻿FlexTFTP
 
-Last Update: 22.01.2025
+Last Update: 26.02.2025
 https://github.com/PhilipU/FlexTFTP
 (help at end of page)
+
+v4.8
+----
+* Enable Auto Update via GutHub
+* Added new device FL3X Interface-S
+* Added new device FL3X Interface-L
+* Added new device FL3X Interface-PXIe
+* Added new device FL3X Interface-PCIe
 
 v4.7
 ----
