@@ -24,7 +24,6 @@ namespace FlexTFTP
         readonly string _downloadPath;
         string _downloadedFilePath;
         string _currentDateString;
-        double _newestDate;
         bool _asyncInProcess;
 
         bool _isBeta;
