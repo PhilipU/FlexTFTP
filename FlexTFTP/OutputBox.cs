@@ -23,7 +23,7 @@ namespace FlexTFTP
         private readonly FlexTftpForm _form;
         private readonly List<KnownLink> _linkList = new List<KnownLink>();
         private readonly ToolTip _hoverTip = new ToolTip();
-        private readonly Timer _toolTipTimer = new Timer();
+        private readonly System.Windows.Forms.Timer _toolTipTimer = new System.Windows.Forms.Timer();
         private bool _clearWeaponLoaded;
 
         public OutputBox(FlexTftpForm form, RichTextBox richTextBox)
@@ -32,9 +32,9 @@ namespace FlexTFTP
             _richTextBox = richTextBox;
 
             // Right click menu for output box
-            ContextMenu contextMenu = new ContextMenu();
-            contextMenu.MenuItems.Add("Clear", ContextMenu_Clear);
-            _richTextBox.ContextMenu = contextMenu;
+            ContextMenuStrip contextMenu = new ContextMenuStrip();
+            contextMenu.Items.Add("Clear");
+            _richTextBox.ContextMenuStrip = contextMenu;
             _richTextBox.MouseMove += MouseMove;
             _richTextBox.MouseClick += MouseClick;
 
@@ -199,7 +199,7 @@ namespace FlexTFTP
                 if (File.Exists(aliasFilePath))
                 {
                     StreamReader streamReader = new StreamReader(aliasFilePath);
-                    string entry;
+                    string? entry;
                     while (null != (entry = streamReader.ReadLine()))
                     {
                         nicePath = Path.GetFileName(path) + " '" + entry + "'";
@@ -238,7 +238,7 @@ namespace FlexTFTP
             Clear();
         }
 
-        private void MouseMove(object sender, MouseEventArgs e)
+        private void MouseMove(object? sender, MouseEventArgs e)
         {
             if(_toolTipTimer.Enabled)
             {
@@ -276,7 +276,7 @@ namespace FlexTFTP
             _toolTipTimer.Enabled = true;
         }
 
-        private void MouseClick(object sender, MouseEventArgs e)
+        private void MouseClick(object? sender, MouseEventArgs e)
         {
             KnownLink wholePath = GetFilePath(_richTextBox.GetCharIndexFromPosition(e.Location));
 
@@ -288,7 +288,7 @@ namespace FlexTFTP
             _form.SetFilePath(wholePath.Link);
         }
 
-        private void toolTipTimer_Tick(object sender, EventArgs e)
+        private void toolTipTimer_Tick(object? sender, EventArgs e)
         {
             _toolTipTimer.Enabled = false;
         }
@@ -386,17 +386,20 @@ namespace FlexTFTP
             // Load index
             //-----------
             StreamReader streamReader = new StreamReader(indexPath);
-            string entry;
-            while(null != (entry = streamReader.ReadLine()))
+            if (streamReader != null)
             {
-                KnownLink knownLink = new KnownLink
+                string? entry;
+                while (null != (entry = streamReader.ReadLine()))
                 {
-                    Link = entry.Split('|')[0],
-                    Alias = entry.Split('|')[1]
-                };
-                _linkList.Add(knownLink);
+                    KnownLink knownLink = new KnownLink
+                    {
+                        Link = entry.Split('|')[0],
+                        Alias = entry.Split('|')[1]
+                    };
+                    _linkList.Add(knownLink);
+                }
+                streamReader.Close();
             }
-            streamReader.Close();
 
             Utils.ScrollToBottom(_richTextBox);
         }

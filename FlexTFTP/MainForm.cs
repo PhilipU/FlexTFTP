@@ -16,7 +16,7 @@ namespace FlexTFTP
         private string _openedPath;
         private string _targetPath = "";
         public Transfer Transfer;
-        private string _processedPath;
+        private string? _processedPath;
         private Updater _updater;
         private string _hotInfoLink = "";
         private readonly string _historyFolderPath;
