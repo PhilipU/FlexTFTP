@@ -42,10 +42,14 @@ namespace FlexTFTP
                 return;
             }
 
-            if (e.LinkText.Contains("http://"))
+            if (e.LinkText.StartsWith("http"))
             {
-                Process.Start(e.LinkText);
-                OutputBox.AddLine("Choose your file...");
+                var ps = new ProcessStartInfo(e.LinkText)
+                {
+                    UseShellExecute = true,
+                    Verb = "open"
+                };
+                Process.Start(ps);
                 return;
             }
             string path = e.LinkText.Substring("file://".Length);
