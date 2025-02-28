@@ -30,280 +30,291 @@ namespace FlexTFTP
         private void InitializeComponent()
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FlexTftpForm));
-            this.textBoxFilePath = new System.Windows.Forms.TextBox();
-            this.buttonDownload = new System.Windows.Forms.Button();
-            this.buttonOpenFile = new System.Windows.Forms.Button();
-            this.textBoxPath = new System.Windows.Forms.TextBox();
-            this.autoPathCheckBox = new System.Windows.Forms.CheckBox();
-            this.outputTextBox = new System.Windows.Forms.RichTextBox();
-            this.textBoxAddress = new System.Windows.Forms.TextBox();
-            this.openFileDialog1 = new System.Windows.Forms.OpenFileDialog();
-            this.maskedTextBoxPort = new System.Windows.Forms.MaskedTextBox();
-            this.pictureBoxSettings = new System.Windows.Forms.PictureBox();
-            this.pictureBox1 = new System.Windows.Forms.PictureBox();
-            this.hotInfo = new System.Windows.Forms.LinkLabel();
-            this.pictureBox_lockSettings = new System.Windows.Forms.PictureBox();
-            this.pictureBoxOnlineState = new System.Windows.Forms.PictureBox();
-            this.pictureBoxPreset1 = new System.Windows.Forms.PictureBox();
-            this.progressBarDownload = new FlexTFTP.ProgressBarWithCaption();
-            this.pictureBoxPreset2 = new System.Windows.Forms.PictureBox();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBoxSettings)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox_lockSettings)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBoxOnlineState)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBoxPreset1)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBoxPreset2)).BeginInit();
-            this.SuspendLayout();
+            textBoxFilePath = new TextBox();
+            buttonDownload = new Button();
+            buttonOpenFile = new Button();
+            textBoxPath = new TextBox();
+            autoPathCheckBox = new CheckBox();
+            outputTextBox = new RichTextBox();
+            textBoxAddress = new TextBox();
+            openFileDialog1 = new OpenFileDialog();
+            maskedTextBoxPort = new MaskedTextBox();
+            pictureBoxSettings = new PictureBox();
+            pictureBox1 = new PictureBox();
+            hotInfo = new LinkLabel();
+            pictureBox_lockSettings = new PictureBox();
+            pictureBoxOnlineState = new PictureBox();
+            pictureBoxPreset1 = new PictureBox();
+            progressBarDownload = new ProgressBarWithCaption();
+            pictureBoxPreset2 = new PictureBox();
+            ((System.ComponentModel.ISupportInitialize)pictureBoxSettings).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)pictureBox1).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)pictureBox_lockSettings).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)pictureBoxOnlineState).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)pictureBoxPreset1).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)pictureBoxPreset2).BeginInit();
+            SuspendLayout();
             // 
             // textBoxFilePath
             // 
-            this.textBoxFilePath.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.textBoxFilePath.ForeColor = System.Drawing.Color.Silver;
-            this.textBoxFilePath.Location = new System.Drawing.Point(4, 12);
-            this.textBoxFilePath.Name = "textBoxFilePath";
-            this.textBoxFilePath.Size = new System.Drawing.Size(251, 20);
-            this.textBoxFilePath.TabIndex = 2;
-            this.textBoxFilePath.Text = "File...";
-            this.textBoxFilePath.Enter += new System.EventHandler(this.textBoxFilePath_Enter);
-            this.textBoxFilePath.Leave += new System.EventHandler(this.textBoxFilePath_Leave);
+            textBoxFilePath.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+            textBoxFilePath.ForeColor = Color.Silver;
+            textBoxFilePath.Location = new Point(4, 14);
+            textBoxFilePath.Margin = new Padding(4);
+            textBoxFilePath.Name = "textBoxFilePath";
+            textBoxFilePath.Size = new Size(292, 23);
+            textBoxFilePath.TabIndex = 2;
+            textBoxFilePath.Text = "File...";
+            textBoxFilePath.Enter += textBoxFilePath_Enter;
+            textBoxFilePath.Leave += textBoxFilePath_Leave;
             // 
             // buttonDownload
             // 
-            this.buttonDownload.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.buttonDownload.Location = new System.Drawing.Point(234, 310);
-            this.buttonDownload.Name = "buttonDownload";
-            this.buttonDownload.Size = new System.Drawing.Size(75, 23);
-            this.buttonDownload.TabIndex = 7;
-            this.buttonDownload.Text = "Download";
-            this.buttonDownload.UseVisualStyleBackColor = true;
-            this.buttonDownload.Click += new System.EventHandler(this.buttonDownload_Click);
+            buttonDownload.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
+            buttonDownload.Location = new Point(270, 361);
+            buttonDownload.Margin = new Padding(4);
+            buttonDownload.Name = "buttonDownload";
+            buttonDownload.Size = new Size(88, 23);
+            buttonDownload.TabIndex = 7;
+            buttonDownload.Text = "Download";
+            buttonDownload.UseVisualStyleBackColor = true;
+            buttonDownload.Click += buttonDownload_Click;
             // 
             // buttonOpenFile
             // 
-            this.buttonOpenFile.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.buttonOpenFile.Location = new System.Drawing.Point(259, 9);
-            this.buttonOpenFile.Name = "buttonOpenFile";
-            this.buttonOpenFile.Size = new System.Drawing.Size(47, 25);
-            this.buttonOpenFile.TabIndex = 1;
-            this.buttonOpenFile.Text = "Open";
-            this.buttonOpenFile.UseVisualStyleBackColor = true;
-            this.buttonOpenFile.Click += new System.EventHandler(this.buttonOpenFile_Click);
+            buttonOpenFile.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            buttonOpenFile.Location = new Point(302, 14);
+            buttonOpenFile.Margin = new Padding(4);
+            buttonOpenFile.Name = "buttonOpenFile";
+            buttonOpenFile.Size = new Size(57, 23);
+            buttonOpenFile.TabIndex = 1;
+            buttonOpenFile.Text = "Open";
+            buttonOpenFile.UseVisualStyleBackColor = true;
+            buttonOpenFile.Click += buttonOpenFile_Click;
             // 
             // textBoxPath
             // 
-            this.textBoxPath.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.textBoxPath.ForeColor = System.Drawing.Color.Silver;
-            this.textBoxPath.Location = new System.Drawing.Point(4, 287);
-            this.textBoxPath.Name = "textBoxPath";
-            this.textBoxPath.Size = new System.Drawing.Size(227, 20);
-            this.textBoxPath.TabIndex = 3;
-            this.textBoxPath.Text = "Path...";
-            this.textBoxPath.TextChanged += new System.EventHandler(this.textBoxPath_TextChanged);
-            this.textBoxPath.Enter += new System.EventHandler(this.textBox1_Enter);
+            textBoxPath.Anchor = AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+            textBoxPath.ForeColor = Color.Silver;
+            textBoxPath.Location = new Point(4, 332);
+            textBoxPath.Margin = new Padding(4);
+            textBoxPath.Name = "textBoxPath";
+            textBoxPath.Size = new Size(264, 23);
+            textBoxPath.TabIndex = 3;
+            textBoxPath.Text = "Path...";
+            textBoxPath.TextChanged += textBoxPath_TextChanged;
+            textBoxPath.Enter += textBox1_Enter;
             // 
             // autoPathCheckBox
             // 
-            this.autoPathCheckBox.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.autoPathCheckBox.AutoSize = true;
-            this.autoPathCheckBox.Location = new System.Drawing.Point(234, 289);
-            this.autoPathCheckBox.Name = "autoPathCheckBox";
-            this.autoPathCheckBox.Size = new System.Drawing.Size(73, 17);
-            this.autoPathCheckBox.TabIndex = 4;
-            this.autoPathCheckBox.Text = "Auto Path";
-            this.autoPathCheckBox.UseVisualStyleBackColor = true;
-            this.autoPathCheckBox.CheckedChanged += new System.EventHandler(this.autoPathCheckBox_CheckedChanged);
+            autoPathCheckBox.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
+            autoPathCheckBox.AutoSize = true;
+            autoPathCheckBox.Location = new Point(279, 334);
+            autoPathCheckBox.Margin = new Padding(4);
+            autoPathCheckBox.Name = "autoPathCheckBox";
+            autoPathCheckBox.Size = new Size(79, 19);
+            autoPathCheckBox.TabIndex = 4;
+            autoPathCheckBox.Text = "Auto Path";
+            autoPathCheckBox.UseVisualStyleBackColor = true;
+            autoPathCheckBox.CheckedChanged += autoPathCheckBox_CheckedChanged;
             // 
             // outputTextBox
             // 
-            this.outputTextBox.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.outputTextBox.Cursor = System.Windows.Forms.Cursors.Arrow;
-            this.outputTextBox.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.outputTextBox.Location = new System.Drawing.Point(4, 40);
-            this.outputTextBox.Name = "outputTextBox";
-            this.outputTextBox.ReadOnly = true;
-            this.outputTextBox.ScrollBars = System.Windows.Forms.RichTextBoxScrollBars.ForcedVertical;
-            this.outputTextBox.Size = new System.Drawing.Size(305, 241);
-            this.outputTextBox.TabIndex = 10;
-            this.outputTextBox.TabStop = false;
-            this.outputTextBox.Text = "";
-            this.outputTextBox.LinkClicked += new System.Windows.Forms.LinkClickedEventHandler(this.outputTextBox_LinkClicked);
+            outputTextBox.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+            outputTextBox.Font = new Font("Microsoft Sans Serif", 8.25F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            outputTextBox.Location = new Point(4, 46);
+            outputTextBox.Margin = new Padding(4);
+            outputTextBox.Name = "outputTextBox";
+            outputTextBox.ReadOnly = true;
+            outputTextBox.ScrollBars = RichTextBoxScrollBars.ForcedVertical;
+            outputTextBox.Size = new Size(355, 278);
+            outputTextBox.TabIndex = 10;
+            outputTextBox.TabStop = false;
+            outputTextBox.Text = "";
+            outputTextBox.LinkClicked += outputTextBox_LinkClicked;
             // 
             // textBoxAddress
             // 
-            this.textBoxAddress.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.textBoxAddress.Location = new System.Drawing.Point(93, 312);
-            this.textBoxAddress.Name = "textBoxAddress";
-            this.textBoxAddress.Size = new System.Drawing.Size(89, 20);
-            this.textBoxAddress.TabIndex = 5;
-            this.textBoxAddress.TextChanged += new System.EventHandler(this.textBoxAddress_TextChanged);
+            textBoxAddress.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
+            textBoxAddress.Location = new Point(108, 361);
+            textBoxAddress.Margin = new Padding(4);
+            textBoxAddress.Name = "textBoxAddress";
+            textBoxAddress.Size = new Size(103, 23);
+            textBoxAddress.TabIndex = 5;
+            textBoxAddress.TextChanged += textBoxAddress_TextChanged;
             // 
             // maskedTextBoxPort
             // 
-            this.maskedTextBoxPort.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.maskedTextBoxPort.Location = new System.Drawing.Point(186, 312);
-            this.maskedTextBoxPort.Mask = "00";
-            this.maskedTextBoxPort.Name = "maskedTextBoxPort";
-            this.maskedTextBoxPort.Size = new System.Drawing.Size(25, 20);
-            this.maskedTextBoxPort.TabIndex = 6;
-            this.maskedTextBoxPort.ValidatingType = typeof(System.DateTime);
-            this.maskedTextBoxPort.TypeValidationCompleted += new System.Windows.Forms.TypeValidationEventHandler(this.maskedTextBoxPort_TypeValidationCompleted);
+            maskedTextBoxPort.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
+            maskedTextBoxPort.Location = new Point(217, 361);
+            maskedTextBoxPort.Margin = new Padding(4);
+            maskedTextBoxPort.Mask = "00";
+            maskedTextBoxPort.Name = "maskedTextBoxPort";
+            maskedTextBoxPort.Size = new Size(28, 23);
+            maskedTextBoxPort.TabIndex = 6;
+            maskedTextBoxPort.ValidatingType = typeof(DateTime);
+            maskedTextBoxPort.TypeValidationCompleted += maskedTextBoxPort_TypeValidationCompleted;
             // 
             // pictureBoxSettings
             // 
-            this.pictureBoxSettings.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.pictureBoxSettings.BackColor = System.Drawing.Color.Transparent;
-            this.pictureBoxSettings.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.pictureBoxSettings.Image = ((System.Drawing.Image)(resources.GetObject("pictureBoxSettings.Image")));
-            this.pictureBoxSettings.InitialImage = null;
-            this.pictureBoxSettings.Location = new System.Drawing.Point(21, 338);
-            this.pictureBoxSettings.Name = "pictureBoxSettings";
-            this.pictureBoxSettings.Size = new System.Drawing.Size(11, 11);
-            this.pictureBoxSettings.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
-            this.pictureBoxSettings.TabIndex = 11;
-            this.pictureBoxSettings.TabStop = false;
-            this.pictureBoxSettings.Click += new System.EventHandler(this.pictureBoxSettings_Click);
+            pictureBoxSettings.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
+            pictureBoxSettings.BackColor = Color.Transparent;
+            pictureBoxSettings.Cursor = Cursors.Hand;
+            pictureBoxSettings.Image = (Image)resources.GetObject("pictureBoxSettings.Image");
+            pictureBoxSettings.InitialImage = null;
+            pictureBoxSettings.Location = new Point(24, 390);
+            pictureBoxSettings.Margin = new Padding(4);
+            pictureBoxSettings.Name = "pictureBoxSettings";
+            pictureBoxSettings.Size = new Size(13, 13);
+            pictureBoxSettings.SizeMode = PictureBoxSizeMode.StretchImage;
+            pictureBoxSettings.TabIndex = 11;
+            pictureBoxSettings.TabStop = false;
+            pictureBoxSettings.Click += pictureBoxSettings_Click;
             // 
             // pictureBox1
             // 
-            this.pictureBox1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.pictureBox1.BackColor = System.Drawing.Color.Transparent;
-            this.pictureBox1.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.pictureBox1.Image = ((System.Drawing.Image)(resources.GetObject("pictureBox1.Image")));
-            this.pictureBox1.Location = new System.Drawing.Point(4, 338);
-            this.pictureBox1.Name = "pictureBox1";
-            this.pictureBox1.Size = new System.Drawing.Size(11, 11);
-            this.pictureBox1.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
-            this.pictureBox1.TabIndex = 12;
-            this.pictureBox1.TabStop = false;
-            this.pictureBox1.Click += new System.EventHandler(this.pictureBox1_Click);
+            pictureBox1.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
+            pictureBox1.BackColor = Color.Transparent;
+            pictureBox1.Cursor = Cursors.Hand;
+            pictureBox1.Image = (Image)resources.GetObject("pictureBox1.Image");
+            pictureBox1.Location = new Point(4, 390);
+            pictureBox1.Margin = new Padding(4);
+            pictureBox1.Name = "pictureBox1";
+            pictureBox1.Size = new Size(13, 13);
+            pictureBox1.SizeMode = PictureBoxSizeMode.StretchImage;
+            pictureBox1.TabIndex = 12;
+            pictureBox1.TabStop = false;
+            pictureBox1.Click += pictureBox1_Click;
             // 
             // hotInfo
             // 
-            this.hotInfo.AutoSize = true;
-            this.hotInfo.Font = new System.Drawing.Font("Microsoft Sans Serif", 6.5F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.hotInfo.LinkColor = System.Drawing.Color.CornflowerBlue;
-            this.hotInfo.Location = new System.Drawing.Point(37, 337);
-            this.hotInfo.Name = "hotInfo";
-            this.hotInfo.Size = new System.Drawing.Size(43, 12);
-            this.hotInfo.TabIndex = 14;
-            this.hotInfo.TabStop = true;
-            this.hotInfo.Text = "Hot Infos";
-            this.hotInfo.Visible = false;
-            this.hotInfo.VisitedLinkColor = System.Drawing.Color.CornflowerBlue;
-            this.hotInfo.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.hotInfo_LinkClicked);
+            hotInfo.AutoSize = true;
+            hotInfo.Font = new Font("Microsoft Sans Serif", 6.5F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            hotInfo.LinkColor = Color.CornflowerBlue;
+            hotInfo.Location = new Point(43, 388);
+            hotInfo.Margin = new Padding(4, 0, 4, 0);
+            hotInfo.Name = "hotInfo";
+            hotInfo.Size = new Size(43, 12);
+            hotInfo.TabIndex = 14;
+            hotInfo.TabStop = true;
+            hotInfo.Text = "Hot Infos";
+            hotInfo.Visible = false;
+            hotInfo.VisitedLinkColor = Color.CornflowerBlue;
+            hotInfo.LinkClicked += hotInfo_LinkClicked;
             // 
             // pictureBox_lockSettings
             // 
-            this.pictureBox_lockSettings.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.pictureBox_lockSettings.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.pictureBox_lockSettings.Image = ((System.Drawing.Image)(resources.GetObject("pictureBox_lockSettings.Image")));
-            this.pictureBox_lockSettings.InitialImage = null;
-            this.pictureBox_lockSettings.Location = new System.Drawing.Point(215, 314);
-            this.pictureBox_lockSettings.Name = "pictureBox_lockSettings";
-            this.pictureBox_lockSettings.Size = new System.Drawing.Size(16, 16);
-            this.pictureBox_lockSettings.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
-            this.pictureBox_lockSettings.TabIndex = 15;
-            this.pictureBox_lockSettings.TabStop = false;
-            this.pictureBox_lockSettings.Click += new System.EventHandler(this.pictureBox2_Click);
+            pictureBox_lockSettings.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
+            pictureBox_lockSettings.Cursor = Cursors.Hand;
+            pictureBox_lockSettings.Image = (Image)resources.GetObject("pictureBox_lockSettings.Image");
+            pictureBox_lockSettings.InitialImage = null;
+            pictureBox_lockSettings.Location = new Point(251, 363);
+            pictureBox_lockSettings.Margin = new Padding(4);
+            pictureBox_lockSettings.Name = "pictureBox_lockSettings";
+            pictureBox_lockSettings.Size = new Size(18, 19);
+            pictureBox_lockSettings.SizeMode = PictureBoxSizeMode.StretchImage;
+            pictureBox_lockSettings.TabIndex = 15;
+            pictureBox_lockSettings.TabStop = false;
+            pictureBox_lockSettings.Click += pictureBox2_Click;
             // 
             // pictureBoxOnlineState
             // 
-            this.pictureBoxOnlineState.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.pictureBoxOnlineState.Image = ((System.Drawing.Image)(resources.GetObject("pictureBoxOnlineState.Image")));
-            this.pictureBoxOnlineState.Location = new System.Drawing.Point(295, 338);
-            this.pictureBoxOnlineState.Name = "pictureBoxOnlineState";
-            this.pictureBoxOnlineState.Size = new System.Drawing.Size(11, 11);
-            this.pictureBoxOnlineState.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
-            this.pictureBoxOnlineState.TabIndex = 16;
-            this.pictureBoxOnlineState.TabStop = false;
+            pictureBoxOnlineState.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
+            pictureBoxOnlineState.Image = (Image)resources.GetObject("pictureBoxOnlineState.Image");
+            pictureBoxOnlineState.Location = new Point(344, 390);
+            pictureBoxOnlineState.Margin = new Padding(4);
+            pictureBoxOnlineState.Name = "pictureBoxOnlineState";
+            pictureBoxOnlineState.Size = new Size(13, 13);
+            pictureBoxOnlineState.SizeMode = PictureBoxSizeMode.StretchImage;
+            pictureBoxOnlineState.TabIndex = 16;
+            pictureBoxOnlineState.TabStop = false;
             // 
             // pictureBoxPreset1
             // 
-            this.pictureBoxPreset1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.pictureBoxPreset1.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.pictureBoxPreset1.Image = global::FlexTFTP.Properties.Resources.preset1_inactive;
-            this.pictureBoxPreset1.Location = new System.Drawing.Point(234, 338);
-            this.pictureBoxPreset1.Name = "pictureBoxPreset1";
-            this.pictureBoxPreset1.Size = new System.Drawing.Size(11, 11);
-            this.pictureBoxPreset1.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
-            this.pictureBoxPreset1.TabIndex = 17;
-            this.pictureBoxPreset1.TabStop = false;
-            this.pictureBoxPreset1.Click += new System.EventHandler(this.pictureBoxPreset1_Click);
+            pictureBoxPreset1.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
+            pictureBoxPreset1.Cursor = Cursors.Hand;
+            pictureBoxPreset1.Image = Properties.Resources.preset1_inactive;
+            pictureBoxPreset1.Location = new Point(273, 390);
+            pictureBoxPreset1.Margin = new Padding(4);
+            pictureBoxPreset1.Name = "pictureBoxPreset1";
+            pictureBoxPreset1.Size = new Size(13, 13);
+            pictureBoxPreset1.SizeMode = PictureBoxSizeMode.StretchImage;
+            pictureBoxPreset1.TabIndex = 17;
+            pictureBoxPreset1.TabStop = false;
+            pictureBoxPreset1.Click += pictureBoxPreset1_Click;
             // 
             // progressBarDownload
             // 
-            this.progressBarDownload.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.progressBarDownload.CustomText = "";
-            this.progressBarDownload.DisplayStyle = FlexTFTP.ProgressBarDisplayText.Percentage;
-            this.progressBarDownload.Location = new System.Drawing.Point(4, 312);
-            this.progressBarDownload.MarqueeAnimationSpeed = 0;
-            this.progressBarDownload.Name = "progressBarDownload";
-            this.progressBarDownload.Size = new System.Drawing.Size(85, 20);
-            this.progressBarDownload.Step = 1;
-            this.progressBarDownload.TabIndex = 1;
+            progressBarDownload.Anchor = AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+            progressBarDownload.CustomText = "";
+            progressBarDownload.DisplayStyle = ProgressBarDisplayText.Percentage;
+            progressBarDownload.Location = new Point(4, 361);
+            progressBarDownload.Margin = new Padding(4);
+            progressBarDownload.MarqueeAnimationSpeed = 0;
+            progressBarDownload.Name = "progressBarDownload";
+            progressBarDownload.Size = new Size(99, 23);
+            progressBarDownload.Step = 1;
+            progressBarDownload.TabIndex = 1;
             // 
             // pictureBoxPreset2
             // 
-            this.pictureBoxPreset2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.pictureBoxPreset2.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.pictureBoxPreset2.Image = global::FlexTFTP.Properties.Resources.preset2_inactive;
-            this.pictureBoxPreset2.Location = new System.Drawing.Point(248, 338);
-            this.pictureBoxPreset2.Name = "pictureBoxPreset2";
-            this.pictureBoxPreset2.Size = new System.Drawing.Size(11, 11);
-            this.pictureBoxPreset2.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
-            this.pictureBoxPreset2.TabIndex = 18;
-            this.pictureBoxPreset2.TabStop = false;
-            this.pictureBoxPreset2.Click += new System.EventHandler(this.pictureBox2_Click_1);
+            pictureBoxPreset2.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
+            pictureBoxPreset2.Cursor = Cursors.Hand;
+            pictureBoxPreset2.Image = Properties.Resources.preset2_inactive;
+            pictureBoxPreset2.Location = new Point(290, 390);
+            pictureBoxPreset2.Margin = new Padding(4);
+            pictureBoxPreset2.Name = "pictureBoxPreset2";
+            pictureBoxPreset2.Size = new Size(13, 13);
+            pictureBoxPreset2.SizeMode = PictureBoxSizeMode.StretchImage;
+            pictureBoxPreset2.TabIndex = 18;
+            pictureBoxPreset2.TabStop = false;
+            pictureBoxPreset2.Click += pictureBox2_Click_1;
             // 
             // FlexTftpForm
             // 
-            this.AllowDrop = true;
-            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(312, 354);
-            this.Controls.Add(this.pictureBoxPreset2);
-            this.Controls.Add(this.pictureBoxPreset1);
-            this.Controls.Add(this.pictureBoxOnlineState);
-            this.Controls.Add(this.pictureBox_lockSettings);
-            this.Controls.Add(this.hotInfo);
-            this.Controls.Add(this.pictureBox1);
-            this.Controls.Add(this.pictureBoxSettings);
-            this.Controls.Add(this.maskedTextBoxPort);
-            this.Controls.Add(this.textBoxAddress);
-            this.Controls.Add(this.autoPathCheckBox);
-            this.Controls.Add(this.buttonOpenFile);
-            this.Controls.Add(this.textBoxPath);
-            this.Controls.Add(this.textBoxFilePath);
-            this.Controls.Add(this.outputTextBox);
-            this.Controls.Add(this.progressBarDownload);
-            this.Controls.Add(this.buttonDownload);
-            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
-            this.KeyPreview = true;
-            this.MinimumSize = new System.Drawing.Size(300, 300);
-            this.Name = "FlexTftpForm";
-            this.Text = "FlexTFTP";
-            this.Activated += new System.EventHandler(this.FlexTftpForm_Activated);
-            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.FlexTftpForm_FormClosing);
-            this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.FlexTFTPForm_FormClosed);
-            this.Load += new System.EventHandler(this.Form1_Load);
-            this.Shown += new System.EventHandler(this.FlexTFTPForm_Shown);
-            this.DragDrop += new System.Windows.Forms.DragEventHandler(this.FlexTFTPForm_DragDrop);
-            this.DragEnter += new System.Windows.Forms.DragEventHandler(this.FlexTFTPForm_DragEnter);
-            this.Enter += new System.EventHandler(this.FlexTftpForm_Enter);
-            this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.ToggleKeyDown);
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBoxSettings)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox_lockSettings)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBoxOnlineState)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBoxPreset1)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBoxPreset2)).EndInit();
-            this.ResumeLayout(false);
-            this.PerformLayout();
+            AllowDrop = true;
+            AutoScaleDimensions = new SizeF(7F, 15F);
+            AutoScaleMode = AutoScaleMode.Font;
+            ClientSize = new Size(364, 409);
+            Controls.Add(pictureBoxPreset2);
+            Controls.Add(pictureBoxPreset1);
+            Controls.Add(pictureBoxOnlineState);
+            Controls.Add(pictureBox_lockSettings);
+            Controls.Add(hotInfo);
+            Controls.Add(pictureBox1);
+            Controls.Add(pictureBoxSettings);
+            Controls.Add(maskedTextBoxPort);
+            Controls.Add(textBoxAddress);
+            Controls.Add(autoPathCheckBox);
+            Controls.Add(buttonOpenFile);
+            Controls.Add(textBoxPath);
+            Controls.Add(textBoxFilePath);
+            Controls.Add(outputTextBox);
+            Controls.Add(progressBarDownload);
+            Controls.Add(buttonDownload);
+            Icon = (Icon)resources.GetObject("$this.Icon");
+            KeyPreview = true;
+            Margin = new Padding(4);
+            MinimumSize = new Size(347, 337);
+            Name = "FlexTftpForm";
+            Text = "FlexTFTP";
+            Activated += FlexTftpForm_Activated;
+            FormClosing += FlexTftpForm_FormClosing;
+            FormClosed += FlexTFTPForm_FormClosed;
+            Load += Form1_Load;
+            Shown += FlexTFTPForm_Shown;
+            DragDrop += FlexTFTPForm_DragDrop;
+            DragEnter += FlexTFTPForm_DragEnter;
+            Enter += FlexTftpForm_Enter;
+            KeyDown += ToggleKeyDown;
+            ((System.ComponentModel.ISupportInitialize)pictureBoxSettings).EndInit();
+            ((System.ComponentModel.ISupportInitialize)pictureBox1).EndInit();
+            ((System.ComponentModel.ISupportInitialize)pictureBox_lockSettings).EndInit();
+            ((System.ComponentModel.ISupportInitialize)pictureBoxOnlineState).EndInit();
+            ((System.ComponentModel.ISupportInitialize)pictureBoxPreset1).EndInit();
+            ((System.ComponentModel.ISupportInitialize)pictureBoxPreset2).EndInit();
+            ResumeLayout(false);
+            PerformLayout();
 
         }
 

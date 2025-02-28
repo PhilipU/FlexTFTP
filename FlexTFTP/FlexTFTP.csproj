@@ -8,6 +8,8 @@
     <PublishReadyToRun>False</PublishReadyToRun>
     <UseWindowsForms>true</UseWindowsForms>
     <ImplicitUsings>enable</ImplicitUsings>
+    <ApplicationHighDpiMode>SystemAware</ApplicationHighDpiMode>
+    <ForceDesignerDpiUnaware>true</ForceDesignerDpiUnaware>
     <Version>5.0.0.0</Version>
     <ApplicationIcon>cow_ufo.ico</ApplicationIcon>
   </PropertyGroup>
