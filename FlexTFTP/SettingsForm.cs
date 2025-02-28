@@ -74,7 +74,7 @@ namespace FlexTFTP
             updateCheck.Checked = Settings.Default.UpdateEnabled;
             checkBoxAutoUpdate.Checked = Settings.Default.AutoUpdate;
             checkBoxUpdateBetaRing.Checked = Settings.Default.UpdateBetaRing;
-            labelNewestVersion.Text = "Newest version: " + _flexTftPform.Updater.NewestVersion.ToString(CultureInfo.InvariantCulture).Replace(',','.') +
+            labelNewestVersion.Text = "Newest version: v" + _flexTftPform.Updater.NewestVersion.ToString(CultureInfo.InvariantCulture).Replace(',','.') +
                 " [" + _flexTftPform.Updater.NewestDate + "]";
             labelCurrentVersion.Text = "Current version: " + Utils.CurrentVersionString +
                 " [" + currentDateString + "]";
