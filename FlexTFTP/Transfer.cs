@@ -352,7 +352,7 @@ namespace FlexTFTP
             string errorMessage = ErrorMessageTranslator.TranslateError(error.ToString());
             _activeError = true;
             StopTransfer();
-            if(_path.StartsWith("cpu") && _file.EndsWith(".s19") && Settings.Default.AutoForce && !_path.Contains("-force") && 
+            if((_path.StartsWith("cpu") ||_path.StartsWith("ram")) && _file.EndsWith(".s19") && Settings.Default.AutoForce && !_path.Contains("-force") && 
                 error.ToString().Contains("Invalid device type"))
             {
                 if (_form != null) _form.OutputBox.AddLine("Failed. Retry with '-force' option", Color.Orange, true);
