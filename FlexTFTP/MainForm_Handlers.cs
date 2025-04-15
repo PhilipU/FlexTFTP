@@ -24,9 +24,9 @@ namespace FlexTFTP
 
         private void buttonOpenFile_Click(object sender, EventArgs e)
         {
+            openFileDialog1.Reset();
             openFileDialog1.Filter = "Firmware Files|*.s19;*.fpga;*.fpga2|All Files|*.*";
             openFileDialog1.Title = "Select a file to download";
-            openFileDialog1.Reset();
             openFileDialog1.InitialDirectory = Path.GetDirectoryName(_openedPath);
 
             if (openFileDialog1.ShowDialog() == DialogResult.OK)
