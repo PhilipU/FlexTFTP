@@ -1,6 +1,6 @@
 ﻿FlexTFTP
 
-Last Update: 18.03.2025
+Last Update: 27.05.2025
 https://github.com/PhilipU/FlexTFTP
 (help at end of page)
 
@@ -8,6 +8,8 @@ v5.0
 ----
 * Migrate to .NET 8
 * Support ram/application with auto-force
+* Add CLI option to use console colors
+* Add CLI option to wait for device after flashing
 
 v4.8
 ----

@@ -2,6 +2,7 @@
 using System;
 using System.Globalization;
 using System.IO;
+using System.Net;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Windows.Forms;
@@ -33,6 +34,22 @@ namespace FlexTFTP
 
     static class Program
     {
+        private static string GetArgByIndex(string[] args, int index)
+        {
+            if(index >= args.Length)
+            { 
+                return ""; 
+            }
+
+            string arg = args[index];
+
+            if(arg == null || arg.Equals("colors") || arg.Equals("wait"))
+            {
+                return "";
+            }
+
+            return arg;
+        }
         /// <summary>
         /// The main entry point for the application.
         /// </summary>
@@ -41,6 +58,21 @@ namespace FlexTFTP
         {
 
             string[] args = Environment.GetCommandLineArgs();
+            bool pingDevice = false;
+
+            foreach(var arg in args)
+            {
+                if(arg.Equals("colors"))
+                {
+                    Utils.ConsoleColors = true;
+                }
+
+                if(arg.Equals("wait"))
+                {
+                    pingDevice = true;
+                }
+            }
+
             if (args.Length > 2)
             {
                 // Check if console is available
@@ -53,7 +85,7 @@ namespace FlexTFTP
                 Transfer transfer = new Transfer();
                 string targetPath = "";
                 string targetPathInfo = "";
-                string file = args[1];
+                string file = GetArgByIndex(args, 1);
 
                 // Print info
                 //-----------
@@ -62,33 +94,34 @@ namespace FlexTFTP
 #if DEBUG
                 appTitle += " [DEBUG]";
 #endif
-                Console.WriteLine("****************************************");
-                Console.WriteLine(appTitle + " (started via CLI)");
-                Console.WriteLine("****************************************");
+                Utils.WriteLine("****************************************");
+                Utils.WriteLine(appTitle + " (started via CLI)");
+                Utils.WriteLine("****************************************");
 
-                Console.WriteLine("File: " + file);
+                Utils.WriteLine("(i) File: " + file);
 
                 Settings.Default.AutoForce = false;
 
                 // Get path as second argument
                 //----------------------------
                 {
-                    if (args[2].Equals("auto", StringComparison.OrdinalIgnoreCase) || args[2].Equals("auto-force", StringComparison.OrdinalIgnoreCase))
+                    string mode = GetArgByIndex(args, 2);
+                    if (mode.Equals("auto", StringComparison.OrdinalIgnoreCase) || mode.Equals("auto-force", StringComparison.OrdinalIgnoreCase))
                     {
                         string parsedPath = TargetPathParser.GetTargetPath(file);
                         if (parsedPath != null)
                         {
                             targetPath = parsedPath;
-                            targetPathInfo = targetPath + " (" + args[2] + ")";
+                            targetPathInfo = targetPath + " (" + mode + ")";
                         }
                         else
                         {
-                            Console.WriteLine("Unable to determine auto path (" + args[2] + "). Exitcode 1");
+                            Utils.WriteLine("(x) Unable to determine auto path (" + mode + "). Exitcode 1");
                             NativeMethods.FreeConsole();
                             Environment.Exit(1);
                         }
 
-                        if (args[2].Equals("auto-force", StringComparison.OrdinalIgnoreCase))
+                        if (mode.Equals("auto-force", StringComparison.OrdinalIgnoreCase))
                         {
                             targetPath += " -force";
                         }
@@ -97,8 +130,8 @@ namespace FlexTFTP
                     {
                         Settings.Default.AutoPath = false;
                         Settings.Default.TypeDependendAutpPath = false; // Prevent reenabling auto path due to other checks
-                        targetPath = args[2];
-                        targetPathInfo = args[2];
+                        targetPath = mode;
+                        targetPathInfo = mode;
                     }
                 }
 
@@ -107,10 +140,19 @@ namespace FlexTFTP
                 string targetIp = "192.168.1.15";
                 if (args.Length > 3)
                 {
-                    if (!args[3].Equals("last", StringComparison.OrdinalIgnoreCase))
+                    string targetIpArg = GetArgByIndex(args, 3);
+                    if (targetIpArg.Length > 0 && !targetIpArg.Equals("last", StringComparison.OrdinalIgnoreCase))
                     {
-                        targetIp = args[3];
+                        targetIp = targetIpArg;
                     }
+                }
+
+                IPAddress address;
+                if (!IPAddress.TryParse(targetIp, out address))
+                {
+                    Utils.WriteLine("(x) Target IP is not a valid IPv4 (" + targetIp + "). Exitcode 1");
+                    NativeMethods.FreeConsole();
+                    Environment.Exit(1);
                 }
 
                 // Get target port as fourth argument
@@ -118,23 +160,30 @@ namespace FlexTFTP
                 int port = 69;
                 if (args.Length > 4)
                 {
-                    if (!args[4].Equals("last", StringComparison.OrdinalIgnoreCase))
+                    string portArg = GetArgByIndex(args, 4);
+                    if (portArg.Length > 0 && !portArg.Equals("last", StringComparison.OrdinalIgnoreCase))
                     {
-                        port = int.Parse(args[4]);
+                        port = int.Parse(portArg);
                     }
                 }
 
-                Console.WriteLine("Target: " + targetIp + ":" + port + " " + targetPathInfo);
+                Utils.WriteLine("(i) Target: " + targetIp + ":" + port + " " + targetPathInfo);
 
                 transfer.ToggleState(file, targetPath, targetIp, port);
 
-                Console.WriteLine("Transfer started...");
+                Utils.WriteLine("Transfer started...");
                 DateTime startTime = DateTime.UtcNow;
 
                 int lastPercentage = 0;
+                bool anyProgress = false;
                 while (true)
                 {
                     int percentage = 0;
+
+                    if(transfer.ActiveError)
+                    {
+                        break;
+                    }
 
                     if (!transfer.InProgress())
                     {
@@ -148,29 +197,56 @@ namespace FlexTFTP
                     if (lastPercentage != percentage)
                     {
                         lastPercentage = percentage;
-                        Console.Write("\rProgress: " + lastPercentage + "%");
+
+                        Utils.Write("\r");
+                        if (lastPercentage < 100)
+                        {
+                            Utils.Write("(!) Progress: " + lastPercentage + "%");
+                        }
+                        else
+                        {
+                            Utils.Write("(+) Progress: " + lastPercentage + "%");
+                        }
+                        anyProgress = true;
                     }
 
                     if (lastPercentage >= 100)
                     {
                         break;
                     }
-
+                    
                     Thread.Sleep(100);
                 }
 
-                Console.WriteLine();
+                if(anyProgress)
+                {
+                    Console.WriteLine();
+                }
 
                 if (transfer.ActiveError)
                 {
-                    Console.WriteLine("Error: " + transfer.LastError);
-                    Console.WriteLine("Transfer failed!");
+                    Utils.WriteLine("(x) Error: " + transfer.LastError);
+                    Utils.WriteLine("(x) Transfer failed!");
                 }
                 else
                 {
                     TimeSpan transferTime = DateTime.UtcNow - startTime;
                     double speed = Math.Round(transfer.LastFileSize / 1024D / 1024D / transferTime.TotalSeconds, 2);
-                    Console.WriteLine("Transfer finished in " + Math.Round(transferTime.TotalSeconds) + "s (" + speed + "MB/s)");
+                    Utils.WriteLine("(+) Transfer finished in " + Math.Round(transferTime.TotalSeconds) + "s (" + speed + "MB/s)");
+
+                    if(pingDevice)
+                    {
+                        Thread.Sleep(500);
+
+                        try
+                        {
+                            PingDevice.Ping(targetIp, 60, 3);
+                        }
+                        catch(Exception e)
+                        {
+                            Utils.WriteLine("(x) Exception occurred while waiting for device");
+                        }
+                    }
                 }
 
                 int exitCode = transfer.ActiveError ? 1 : 0;
