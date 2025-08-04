@@ -43,7 +43,7 @@ namespace FlexTFTP
 
             string arg = args[index];
 
-            if(arg == null || arg.Equals("colors") || arg.Equals("wait"))
+            if(arg == null || arg.Equals("colors") || arg.Equals("wait") || arg.Equals("test"))
             {
                 return "";
             }
@@ -59,6 +59,7 @@ namespace FlexTFTP
 
             string[] args = Environment.GetCommandLineArgs();
             bool pingDevice = false;
+            bool infinitTransferTest = false;
 
             foreach(var arg in args)
             {
@@ -70,6 +71,11 @@ namespace FlexTFTP
                 if(arg.Equals("wait"))
                 {
                     pingDevice = true;
+                }
+
+                if(arg.Equals("test"))
+                {
+                    infinitTransferTest = true;
                 }
             }
 
@@ -176,6 +182,7 @@ namespace FlexTFTP
 
                 int lastPercentage = 0;
                 bool anyProgress = false;
+                DateTime lastProgressUpdate = DateTime.UtcNow;
                 while (true)
                 {
                     int percentage = 0;
@@ -192,6 +199,13 @@ namespace FlexTFTP
                     else
                     {
                         percentage = transfer.Percentage;
+
+                        if(infinitTransferTest && transfer.Percentage >= 60)
+                        {
+                            transfer.StopTransfer();
+                            Thread.Sleep(100);
+                            transfer.ToggleState(file, targetPath, targetIp, port);
+                        }
                     }
 
                     if (lastPercentage != percentage)
@@ -207,7 +221,19 @@ namespace FlexTFTP
                         {
                             Utils.Write("(+) Progress: " + lastPercentage + "%");
                         }
+                        lastProgressUpdate = DateTime.UtcNow;
                         anyProgress = true;
+                    }
+                    else if(infinitTransferTest)
+                    {
+                        DateTime now = DateTime.UtcNow;
+                        if((now - lastProgressUpdate).TotalSeconds > 2)
+                        {
+                            Console.WriteLine();
+                            Utils.WriteLine("(x) Detected hanging transmission");
+                            transfer.StopTransfer();
+                            break;
+                        }
                     }
 
                     if (lastPercentage >= 100)
@@ -218,6 +244,8 @@ namespace FlexTFTP
                     Thread.Sleep(100);
                 }
 
+                TimeSpan transferTime = DateTime.UtcNow - startTime;
+
                 if(anyProgress)
                 {
                     Console.WriteLine();
@@ -226,11 +254,10 @@ namespace FlexTFTP
                 if (transfer.ActiveError)
                 {
                     Utils.WriteLine("(x) Error: " + transfer.LastError);
-                    Utils.WriteLine("(x) Transfer failed!");
+                    Utils.WriteLine("(x) Transfer failed after " + Math.Round(transferTime.TotalSeconds) + "s!");
                 }
                 else
                 {
-                    TimeSpan transferTime = DateTime.UtcNow - startTime;
                     double speed = Math.Round(transfer.LastFileSize / 1024D / 1024D / transferTime.TotalSeconds, 2);
                     Utils.WriteLine("(+) Transfer finished in " + Math.Round(transferTime.TotalSeconds) + "s (" + speed + "MB/s)");
 

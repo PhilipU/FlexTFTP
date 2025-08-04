@@ -1,6 +1,6 @@
 ﻿FlexTFTP
 
-Last Update: 27.05.2025
+Last Update: 04.08.2025
 https://github.com/PhilipU/FlexTFTP
 (help at end of page)
 
