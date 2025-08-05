@@ -225,8 +225,8 @@ FlexTFTP.exe
     [IP | "last"]
     [Port | "last"]
     [Afterwards action "close"]
-    [colors]
-    [test]
+    ["colors"]
+    ["test"]
 
 TargetFile
     File path to file which should 
