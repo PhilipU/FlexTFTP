@@ -177,12 +177,13 @@ namespace FlexTFTP
 
                 transfer.ToggleState(file, targetPath, targetIp, port);
 
-                Utils.WriteLine("Transfer started...");
+                Utils.WriteLine("Transfer started at " + DateTime.Now.ToString("HH:mm:ss") + "...");
                 DateTime startTime = DateTime.UtcNow;
 
                 int lastPercentage = 0;
                 bool anyProgress = false;
                 DateTime lastProgressUpdate = DateTime.UtcNow;
+                int testIteration = 1;
                 while (true)
                 {
                     int percentage = 0;
@@ -205,6 +206,7 @@ namespace FlexTFTP
                             transfer.StopTransfer();
                             Thread.Sleep(100);
                             transfer.ToggleState(file, targetPath, targetIp, port);
+                            testIteration++;
                         }
                     }
 
@@ -212,14 +214,22 @@ namespace FlexTFTP
                     {
                         lastPercentage = percentage;
 
+                        string iterationInfo = "";
+                        if(infinitTransferTest)
+                        {
+                            iterationInfo = " (" + testIteration + ")";
+                        }
+
+                        Utils.Write("\r");
+                        Utils.Write("                                                              ");
                         Utils.Write("\r");
                         if (lastPercentage < 100)
                         {
-                            Utils.Write("(!) Progress: " + lastPercentage + "%");
+                            Utils.Write("(!) Progress" + iterationInfo + ": " + lastPercentage + "%");
                         }
                         else
                         {
-                            Utils.Write("(+) Progress: " + lastPercentage + "%");
+                            Utils.Write("(+) Progress" + iterationInfo + ": " + lastPercentage + "%");
                         }
                         lastProgressUpdate = DateTime.UtcNow;
                         anyProgress = true;
