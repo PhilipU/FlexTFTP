@@ -11,7 +11,7 @@
     <ApplicationHighDpiMode>SystemAware</ApplicationHighDpiMode>
     <ForceDesignerDpiUnaware>true</ForceDesignerDpiUnaware>
     <Version>5.0.0.0</Version>
-    <ApplicationIcon>cow_ufo.ico</ApplicationIcon>
+    <ApplicationIcon>cow_ufo_v5.ico</ApplicationIcon>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -23,7 +23,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Content Include="cow_ufo.ico" />
+    <Content Include="cow_ufo_v5.ico" />
   </ItemGroup>
 
   <ItemGroup>

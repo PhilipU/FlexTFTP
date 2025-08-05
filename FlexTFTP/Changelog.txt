@@ -1,6 +1,6 @@
 ﻿FlexTFTP
 
-Last Update: 04.08.2025
+Last Update: 05.08.2025
 https://github.com/PhilipU/FlexTFTP
 (help at end of page)
 
@@ -10,6 +10,7 @@ v5.0
 * Support ram/application with auto-force
 * Add CLI option to use console colors
 * Add CLI option to wait for device after flashing
+* Add CLI option to test transfer stability
 
 v4.8
 ----
@@ -224,6 +225,8 @@ FlexTFTP.exe
     [IP | "last"]
     [Port | "last"]
     [Afterwards action "close"]
+    [colors]
+    [test]
 
 TargetFile
     File path to file which should 
@@ -253,6 +256,11 @@ Action
     without delay.
     Default behavior will close application
     after a few seconds.
+Colors
+    Will activate output colorization in CLI mode
+Test
+    Transfer is restarted every time at 60%
+    to test transfer stability
 
 Example:
 FlexTFTP "myFile.s19" auto-force
