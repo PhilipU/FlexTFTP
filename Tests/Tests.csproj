@@ -22,7 +22,7 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="NUnit3TestAdapter" Version="5.2.0" />
-    <PackageReference Include="System.Resources.Extensions" Version="9.0.8" />
+    <PackageReference Include="System.Resources.Extensions" Version="9.0.10" />
   </ItemGroup>
 
   <ItemGroup>
