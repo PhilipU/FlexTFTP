@@ -61,6 +61,8 @@ namespace FlexTFTP
                 int msTaken = (int)timeSpan.TotalMilliseconds;
 
                 Utils.Write("\r");
+                Utils.Write("                                                              ");
+                Utils.Write("\r");
                 if (status == IPStatus.Success)
                 {
                     reachableCount++;

@@ -4,6 +4,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 VisualStudioVersion = 17.10.34928.147
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FlexTFTP", "FlexTFTP\FlexTFTP.csproj", "{2BBBF5B5-F35D-4038-A354-46B79F0D6D36}"
+	ProjectSection(ProjectDependencies) = postProject
+		{961E6F2E-4F24-6859-997F-0654B8857113} = {961E6F2E-4F24-6859-997F-0654B8857113}
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{A5292646-2784-4211-A4C3-6224F2D8F7D1}"
 	ProjectSection(SolutionItems) = preProject
@@ -11,6 +14,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{A52926
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tests", "Tests\Tests.csproj", "{C87B023F-687E-4F13-ABAE-6483086826F4}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tftp.Net", "Tftp.Net\Tftp.Net.csproj", "{961E6F2E-4F24-6859-997F-0654B8857113}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -31,6 +36,12 @@ Global
 		{C87B023F-687E-4F13-ABAE-6483086826F4}.Deploy|Any CPU.Build.0 = Debug|Any CPU
 		{C87B023F-687E-4F13-ABAE-6483086826F4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C87B023F-687E-4F13-ABAE-6483086826F4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{961E6F2E-4F24-6859-997F-0654B8857113}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{961E6F2E-4F24-6859-997F-0654B8857113}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{961E6F2E-4F24-6859-997F-0654B8857113}.Deploy|Any CPU.ActiveCfg = Release|Any CPU
+		{961E6F2E-4F24-6859-997F-0654B8857113}.Deploy|Any CPU.Build.0 = Release|Any CPU
+		{961E6F2E-4F24-6859-997F-0654B8857113}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{961E6F2E-4F24-6859-997F-0654B8857113}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
