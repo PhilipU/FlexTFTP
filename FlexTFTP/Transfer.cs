@@ -2,6 +2,7 @@
 using System;
 using System.Drawing;
 using System.IO;
+using System.Net;
 using System.Security.Policy;
 using System.Threading;
 using System.Threading.Tasks;
@@ -123,6 +124,13 @@ namespace FlexTFTP
             }
         }
 
+        private void AddDebugLog(string text, Color color)
+        {
+#if DEBUG
+            if (_form != null) _form.OutputBox.AddLine(text, color, true);
+#endif
+        }
+
         public bool ToggleState(string file, string path, string address, int port)
         {
             if (_transferInProgress)
@@ -230,13 +238,21 @@ namespace FlexTFTP
 
         public bool StartTransfer(string file, string path, string address, int port)
         {
-            if (_transferInProgress) return false;
+            if (_transferInProgress)
+            {
+                AddDebugLog("StartTransfer() but _transferInProgress = true", Color.Gray);
+                return false;
+            }
             return ToggleState(file, path, address, port);
         }
 
         public bool StopTransfer()
         {
-            if(!_transferInProgress) return false;
+            if (!_transferInProgress)
+            {
+                AddDebugLog("StopTransfer() but _transferInProgress = false", Color.Gray);
+                return false;
+            }
 
             _transferInProgress = false;
             if (_transfer != null)
@@ -322,8 +338,13 @@ namespace FlexTFTP
 
         public void UpdateProgress(TftpTransferProgress progress)
         {
-            if (!_transferInProgress) return;
-            _percentage = Convert.ToInt32((Convert.ToDouble(progress.TransferredBytes) / (Convert.ToDouble(progress.TotalBytes)) * 100D));
+            if (!_transferInProgress)
+            {
+                AddDebugLog("UpdateProgress() but _transferInProgress = false", Color.Gray);
+                return;
+            }
+
+            _percentage = Convert.ToInt32((Convert.ToDouble(progress.TransferredBytes) / (Convert.ToDouble(_lastFileSize)) * 100D));
             if (_percentage == 0) _percentage = 1;
 
             if (_form != null)
@@ -348,7 +369,12 @@ namespace FlexTFTP
 
         public void SetTransferFailed(TftpTransferError error)
         {
-            if (!_transferInProgress) return;
+            if (!_transferInProgress)
+            {
+                AddDebugLog("SetTransferFailed() but _transferInProgress = false", Color.Gray);
+                return;
+            }
+
             string errorMessage = ErrorMessageTranslator.TranslateError(error.ToString());
             _activeError = true;
             StopTransfer();
@@ -368,7 +394,11 @@ namespace FlexTFTP
 
         public void SetTransferFinished()
         {
-            if (!_transferInProgress) return;
+            if (!_transferInProgress)
+            {
+                AddDebugLog("SetTransferFinished() but _transferInProgress = false", Color.Gray);
+                return;
+            }
             TimeSpan transferTime = DateTime.UtcNow- _startTime;
             double speed = Math.Round(_lastFileSize/1024D/1024D/transferTime.TotalSeconds, 2);
             if (_form != null) _form.OutputBox.AddLine("Finished in " + Math.Round(transferTime.TotalSeconds) + "s (" + speed + "MB/s)", Color.Green, true);
@@ -384,7 +414,11 @@ namespace FlexTFTP
             {
                 FlexTftpForm form = (FlexTftpForm)transfer.UserContext;
 
-                if (!_transferInProgress) return;
+                if (!_transferInProgress)
+                {
+                    AddDebugLog("transfer_OnProgress() but _transferInProgress = false", Color.Gray);
+                    return;
+                }
 
                 object[] parametersArray = new object[] { progress };
                 form.Invoke(_delegateProgress, parametersArray);
@@ -401,7 +435,11 @@ namespace FlexTFTP
             {
                 FlexTftpForm form = (FlexTftpForm)transfer.UserContext;
 
-                if (!_transferInProgress) return;
+                if (!_transferInProgress)
+                {
+                    AddDebugLog("transfer_OnError() but _transferInProgress = false", Color.Gray);
+                    return;
+                }
 
                 object[] parametersArray = new object[] { error };
                 form.Invoke(_delegateError, parametersArray);
@@ -418,7 +456,11 @@ namespace FlexTFTP
             {
                 FlexTftpForm form = (FlexTftpForm)transfer.UserContext;
 
-                if (!_transferInProgress) return;
+                if (!_transferInProgress)
+                {
+                    AddDebugLog("transfer_OnFinshed() but _transferInProgress = false", Color.Gray);
+                    return;
+                }
 
                 form.Invoke(new MethodInvoker(SetTransferFinished));
             }

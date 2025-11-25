@@ -31,12 +31,7 @@
     <PackageReference Include="Microsoft-WindowsAPICodePack-Shell" Version="1.1.5" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageReference Include="Nito.AsyncEx.Context" Version="5.1.2" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Reference Include="Tftp.Net">
-      <HintPath>libs\Tftp.Net.dll</HintPath>
-    </Reference>
+    <PackageReference Include="Tftp.Net" Version="1.3.0" />
   </ItemGroup>
 
 </Project>
