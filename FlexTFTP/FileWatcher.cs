@@ -63,26 +63,33 @@ namespace FlexTFTP
 
         private void ChangeInvoker()
         {
-            DateTime lastFileChangeTime = File.GetLastWriteTime(_filePath);
-            DateTime now = DateTime.Now;
-            FileInfo fileInfo = new FileInfo(_filePath);
-            double fileSizeBytes = fileInfo.Length;
-            long deltaLastWrite = now.Ticks - lastFileChangeTime.Ticks;
-
-            if (Math.Abs(fileSizeBytes) > 0 && 
-                lastFileChangeTime.Ticks != _lastCheckedFileChangeTime.Ticks && 
-                deltaLastWrite > TimeSpan.TicksPerMillisecond * 250 /* 250ms */)
+            try
             {
-                _lastCheckedFileChangeTime = lastFileChangeTime;
-                _form.OutputBox.AddLine("File was updated. New size: " + Utils.GetReadableSize(fileSizeBytes), System.Drawing.Color.Black, true);
+                DateTime lastFileChangeTime = File.GetLastWriteTime(_filePath);
+                DateTime now = DateTime.Now;
+                FileInfo fileInfo = new FileInfo(_filePath);
+                double fileSizeBytes = fileInfo.Length;
+                long deltaLastWrite = now.Ticks - lastFileChangeTime.Ticks;
 
-                // Show update in taskbar (yellow) if not in focus
-                if (Form.ActiveForm != _form)
+                if (Math.Abs(fileSizeBytes) > 0 &&
+                    lastFileChangeTime.Ticks != _lastCheckedFileChangeTime.Ticks &&
+                    deltaLastWrite > TimeSpan.TicksPerMillisecond * 250 /* 250ms */)
                 {
-                    var prog = TaskbarManager.Instance;
-                    prog.SetProgressValue(100, 100);
-                    prog.SetProgressState(TaskbarProgressBarState.Paused);
+                    _lastCheckedFileChangeTime = lastFileChangeTime;
+                    _form.OutputBox.AddLine("File was updated. New size: " + Utils.GetReadableSize(fileSizeBytes), System.Drawing.Color.Black, true);
+
+                    // Show update in taskbar (yellow) if not in focus
+                    if (Form.ActiveForm != _form)
+                    {
+                        var prog = TaskbarManager.Instance;
+                        prog.SetProgressValue(100, 100);
+                        prog.SetProgressState(TaskbarProgressBarState.Paused);
+                    }
                 }
+            }
+            catch (Exception ex)
+            {
+                // ignore
             }
         }
     }
