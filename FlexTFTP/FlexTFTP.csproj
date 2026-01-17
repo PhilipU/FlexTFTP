@@ -10,8 +10,8 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <ApplicationHighDpiMode>SystemAware</ApplicationHighDpiMode>
     <ForceDesignerDpiUnaware>true</ForceDesignerDpiUnaware>
-    <Version>5.0.0.0</Version>
-    <ApplicationIcon>cow_ufo.ico</ApplicationIcon>
+    <Version>5.1.0.0</Version>
+    <ApplicationIcon>cow_ufo_v5.ico</ApplicationIcon>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -23,20 +23,18 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Content Include="cow_ufo.ico" />
+    <Content Include="cow_ufo_v5.ico" />
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Microsoft-WindowsAPICodePack-Core" Version="1.1.5" />
     <PackageReference Include="Microsoft-WindowsAPICodePack-Shell" Version="1.1.5" />
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
     <PackageReference Include="Nito.AsyncEx.Context" Version="5.1.2" />
   </ItemGroup>
 
   <ItemGroup>
-    <Reference Include="Tftp.Net">
-      <HintPath>libs\Tftp.Net.dll</HintPath>
-    </Reference>
+    <ProjectReference Include="..\Tftp.Net\Tftp.Net.csproj" />
   </ItemGroup>
 
 </Project>

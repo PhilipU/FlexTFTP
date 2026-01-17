@@ -12,7 +12,7 @@
 
 TFTP Firmware Update Tool with support of special SRecord (*.s19) flash files.
 
-![FlexTFTP UI](docs/screenshot-1.png)
+![FlexTFTP UI](docs/screenshot-1-v5.png)
 
 ## Update
 
@@ -26,11 +26,13 @@ ESC   - Stop transfer
 ## Command line parameters
 
 FlexTFTP.exe
-
-    [Path | "auto"]
+    TargetFile
+    [Path | "auto" | "auto-force"]
     [IP | "last"]
     [Port | "last"]
     [Afterwards action "close"]
+    ["colors"]
+    ["test"]
 
 ### TargetFile
 
@@ -67,6 +69,15 @@ FlexTFTP.exe
     without delay.
     Default behavior will close application
     after a few seconds.
+
+### Colors
+
+    Will activate output colorization in CLI mode
+
+### Test
+
+    Transfer is restarted every time at 60%
+    to test transfer stability
 
 #### Example
 

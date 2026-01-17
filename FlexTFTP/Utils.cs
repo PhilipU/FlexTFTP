@@ -12,6 +12,8 @@ namespace FlexTFTP
 {
     class Utils
     {
+        public static bool ConsoleColors = false;
+
         [DllImport("user32.dll", CharSet = CharSet.Auto)]
         private static extern int SendMessage(IntPtr hWnd, int wMsg, IntPtr wParam, IntPtr lParam);
 
@@ -147,6 +149,40 @@ namespace FlexTFTP
                 process.StandardInput.WriteLine("arp -d *");
                 process.StandardInput.WriteLine("exit");
             }
+        }
+
+        public static void Write(string text)
+        {
+            ConsoleColor color = Console.ForegroundColor;
+            if(ConsoleColors)
+            {
+                if(text.StartsWith("(x)"))
+                {
+                    color = ConsoleColor.Red;
+                }
+                else if(text.StartsWith("(!)"))
+                {
+                    color = ConsoleColor.DarkYellow;
+                }
+                else if (text.StartsWith("(+)"))
+                {
+                    color = ConsoleColor.Green;
+                }
+                else if (text.StartsWith("(i)"))
+                {
+                    color = ConsoleColor.Blue;
+                }
+            }
+
+            Console.ForegroundColor = color;
+            Console.Write(text);
+            Console.ResetColor();
+        }
+
+        public static void WriteLine(string text)
+        {
+            Write(text);
+            Console.WriteLine();
         }
     }
 }

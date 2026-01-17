@@ -11,7 +11,7 @@ namespace Tests
         public void FlexSystemPaths()
         {
             string path = TargetPathParser.GetPathByName("3-01050A01_application.s19");
-            Assert.That(path != null, Is.True, "FlexSystem-M Path Should be found");
+            NUnit.Framework.Assert.That(path != null, Is.True, "FlexSystem-M Path Should be found");
         }
     }
 }
