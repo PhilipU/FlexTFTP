@@ -1,3 +1,27 @@
 {
-    "dotnet.preferCSharpExtension": true
+    "dotnet.preferCSharpExtension": true,
+
+    "VsCodeTaskButtons.tasks": [
+        {
+            "label": "🧹 Clean",
+            "task": "Clean",
+            "tooltip": "Clean build artifacts"
+        },
+        {
+            "label": "🔨 Build Debug",
+            "task": "Build (Debug)",
+            "tooltip": "Build in Debug mode"
+        },
+        {
+            "label": "🚀 Build Release",
+            "task": "Build (Release)",
+            "tooltip": "Build in Release mode"
+        },
+        {
+            "label": "▶️ Run",
+            "task": "Run",
+            "tooltip": "Run application",
+            "color": "default"
+        }
+    ]
 }

@@ -406,6 +406,13 @@ namespace FlexTFTP
             _transferTotalkiloByte += (int)(_lastFileSize / 1024);
             _activeError = false;
             StopTransfer();
+
+            // Check FPGA compatibility for S19 files
+            if (Settings.Default.CheckFpgaCompatibility && 
+                _file != null && _file.EndsWith(".s19", StringComparison.OrdinalIgnoreCase))
+            {
+                Task.Run(() => FpgaCompatibilityChecker.CheckCompatibilityAsync(_address, _form?.OutputBox));
+            }
         }
 
         public void transfer_OnProgress(ITftpTransfer transfer, TftpTransferProgress progress)

@@ -466,5 +466,17 @@ namespace FlexTFTP.Properties {
                 this["Preset2Port"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool CheckFpgaCompatibility {
+            get {
+                return ((bool)(this["CheckFpgaCompatibility"]));
+            }
+            set {
+                this["CheckFpgaCompatibility"] = value;
+            }
+        }
     }
 }

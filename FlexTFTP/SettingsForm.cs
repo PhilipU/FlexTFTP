@@ -44,6 +44,7 @@ namespace FlexTFTP
             Settings.Default.OnlineCheckIntervalMs = Convert.ToInt32(maskedTextBoxOnlineCheckInterval.Text);
 
             Settings.Default.ShowFullPath = checkBoxShowFullFilePath.Checked;
+            Settings.Default.CheckFpgaCompatibility = checkBoxCheckFpgaCompatibility.Checked;
 
             // Presets
             //--------
@@ -95,6 +96,7 @@ namespace FlexTFTP
             maskedTextBoxOnlineCheckInterval.Text = Settings.Default.OnlineCheckIntervalMs.ToString();
 
             checkBoxShowFullFilePath.Checked = Settings.Default.ShowFullPath;
+            checkBoxCheckFpgaCompatibility.Checked = Settings.Default.CheckFpgaCompatibility;
 
             // Presets
             //--------
