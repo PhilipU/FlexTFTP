@@ -60,6 +60,7 @@ namespace FlexTFTP
             string[] args = Environment.GetCommandLineArgs();
             bool pingDevice = false;
             bool infinitTransferTest = false;
+            bool checkFpga = false;
 
             foreach(var arg in args)
             {
@@ -76,6 +77,11 @@ namespace FlexTFTP
                 if(arg.Equals("test"))
                 {
                     infinitTransferTest = true;
+                }
+
+                if(arg.Equals("fpga"))
+                {
+                    checkFpga = true;
                 }
             }
 
@@ -282,6 +288,114 @@ namespace FlexTFTP
                         catch(Exception e)
                         {
                             Utils.WriteLine("(x) Exception occurred while waiting for device");
+                        }
+                    }
+
+                    // Check FPGA compatibility if requested and file is S19
+                    if(checkFpga && file.EndsWith(".s19", StringComparison.OrdinalIgnoreCase))
+                    {
+                        Utils.WriteLine("(i) Starting FPGA compatibility check...");
+                        try
+                        {
+                            string? fpgaFile = FpgaCompatibilityChecker.CheckCompatibilityCliAsync(targetIp).Result;
+                            
+                            // If FPGA update is needed, start automatic update
+                            if (!string.IsNullOrEmpty(fpgaFile))
+                            {
+                                Utils.WriteLine("(i) Starting automatic FPGA update...");
+                                
+                                // Reset transfer state
+                                transfer = new Transfer();
+                                transfer.ToggleState(fpgaFile, "fpga/application", targetIp, port);
+                                
+                                Utils.WriteLine("Transfer started at " + DateTime.Now.ToString("HH:mm:ss") + "...");
+                                startTime = DateTime.UtcNow;
+                                lastPercentage = 0;
+                                anyProgress = false;
+                                lastProgressUpdate = DateTime.UtcNow;
+                                
+                                // Wait for FPGA transfer to complete
+                                while (true)
+                                {
+                                    int percentage = 0;
+
+                                    if(transfer.ActiveError)
+                                    {
+                                        break;
+                                    }
+
+                                    if (!transfer.InProgress())
+                                    {
+                                        percentage = 100;
+                                    }
+                                    else
+                                    {
+                                        percentage = transfer.Percentage;
+                                    }
+
+                                    if (lastPercentage != percentage)
+                                    {
+                                        lastPercentage = percentage;
+
+                                        Utils.Write("\r");
+                                        Utils.Write("                                                              ");
+                                        Utils.Write("\r");
+                                        if (lastPercentage < 100)
+                                        {
+                                            Utils.Write("(!) Progress: " + lastPercentage + "%");
+                                        }
+                                        else
+                                        {
+                                            Utils.Write("(+) Progress: " + lastPercentage + "%");
+                                        }
+                                        lastProgressUpdate = DateTime.UtcNow;
+                                        anyProgress = true;
+                                    }
+
+                                    if (lastPercentage >= 100)
+                                    {
+                                        break;
+                                    }
+                                    
+                                    Thread.Sleep(100);
+                                }
+
+                                transferTime = DateTime.UtcNow - startTime;
+
+                                if(anyProgress)
+                                {
+                                    Console.WriteLine();
+                                }
+
+                                if (transfer.ActiveError)
+                                {
+                                    Utils.WriteLine("(x) FPGA update failed: " + transfer.LastError);
+                                }
+                                else
+                                {
+                                    speed = Math.Round(transfer.LastFileSize / 1024D / 1024D / transferTime.TotalSeconds, 2);
+                                    Utils.WriteLine("(+) FPGA update finished in " + Math.Round(transferTime.TotalSeconds) + "s (" + speed + "MB/s)");
+                                    
+                                    // Wait for device after FPGA update if requested
+                                    if(pingDevice)
+                                    {
+                                        Thread.Sleep(500);
+
+                                        try
+                                        {
+                                            PingDevice.Ping(targetIp, 60, 3);
+                                        }
+                                        catch(Exception e)
+                                        {
+                                            Utils.WriteLine("(x) Exception occurred while waiting for device");
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        catch(Exception e)
+                        {
+                            Utils.WriteLine("(x) FPGA check failed: " + e.Message);
                         }
                     }
                 }

@@ -96,9 +96,47 @@ namespace FlexTFTP
                 foreach (var required in requiredFpgas)
                 {
                     var loaded = loadedFpgas.FirstOrDefault(l => l.Id == required.Id);
-                    if (loaded == null || loaded.ProjectCompatibility?.Equals("Incompatible", StringComparison.OrdinalIgnoreCase) == true)
+                    
+                    if (EnableDebugOutput)
+                        outputBox.AddLine($"[DEBUG] Checking required ID={required.Id}: loaded={loaded != null}, compat={loaded?.ProjectCompatibility}", Color.Gray, true);
+                    
+                    // Check if FPGA needs update
+                    bool needsUpdate = false;
+                    
+                    if (loaded == null)
                     {
+                        if (EnableDebugOutput)
+                            outputBox.AddLine($"[DEBUG] FPGA ID={required.Id} not loaded", Color.Gray, true);
+                        needsUpdate = true;
+                    }
+                    else if (loaded.FpgaImage?.Type != required.FpgaImage?.Type)
+                    {
+                        if (EnableDebugOutput)
+                            outputBox.AddLine($"[DEBUG] FPGA ID={required.Id} type mismatch: required={required.FpgaImage?.Type}, loaded={loaded.FpgaImage?.Type}", Color.Gray, true);
+                        needsUpdate = true;
+                    }
+                    else if (required.FpgaImage?.Version != "0.0.0.0")
+                    {
+                        // Version 0.0.0.0 means "any version allowed"
+                        // Otherwise check if versions match
+                        if (loaded.FpgaImage?.Version != required.FpgaImage?.Version)
+                        {
+                            if (EnableDebugOutput)
+                                outputBox.AddLine($"[DEBUG] FPGA ID={required.Id} version mismatch: required={required.FpgaImage?.Version}, loaded={loaded.FpgaImage?.Version}", Color.Gray, true);
+                            needsUpdate = true;
+                        }
+                    }
+                    
+                    if (needsUpdate)
+                    {
+                        if (EnableDebugOutput)
+                            outputBox.AddLine($"[DEBUG] FPGA ID={required.Id} needs update", Color.Gray, true);
                         missingUpdates.Add(required);
+                    }
+                    else
+                    {
+                        if (EnableDebugOutput)
+                            outputBox.AddLine($"[DEBUG] FPGA ID={required.Id} is compatible", Color.Gray, true);
                     }
                 }
 
@@ -131,6 +169,209 @@ namespace FlexTFTP
                     outputBox?.AddLine($"[DEBUG] FPGA Check: Stack trace: {ex.StackTrace}", Color.Gray, true);
                 }
                 // Silently ignore all errors as requested
+            }
+        }
+
+        /// <summary>
+        /// Checks FPGA compatibility for CLI mode (console output)
+        /// </summary>
+        /// <param name="ipAddress">IP address of the device</param>
+        /// <returns>Path to FPGA container file if update is needed, null otherwise</returns>
+        public static async Task<string?> CheckCompatibilityCliAsync(string ipAddress)
+        {
+            if (string.IsNullOrEmpty(ipAddress))
+            {
+                return null;
+            }
+
+            try
+            {
+                // Log start of check
+                Utils.WriteLine("(i) Waiting for device to restart...");
+
+                // Wait for device to come back online
+                if (!WaitForDeviceOnlineCli(ipAddress))
+                {
+                    Utils.WriteLine("(x) Device did not respond, skipping FPGA check");
+                    return null;
+                }
+
+                // Additional delay for REST API to be ready
+                if (EnableDebugOutput)
+                    Utils.WriteLine($"[DEBUG] Waiting {RestApiDelaySeconds}s for REST API");
+                Thread.Sleep(RestApiDelaySeconds * 1000);
+
+                // Get required FPGA images
+                if (EnableDebugOutput)
+                    Utils.WriteLine("[DEBUG] Calling GetRequiredFpgasCliAsync...");
+                var requiredFpgas = await GetRequiredFpgasCliAsync(ipAddress);
+                
+                if (EnableDebugOutput)
+                    Utils.WriteLine($"[DEBUG] Required FPGAs: {requiredFpgas?.Count ?? 0}");
+                
+                if (requiredFpgas == null || requiredFpgas.Count == 0)
+                {
+                    if (EnableDebugOutput)
+                        Utils.WriteLine("[DEBUG] No required FPGAs found, exiting");
+                    return null;
+                }
+
+                if (EnableDebugOutput)
+                {
+                    foreach (var req in requiredFpgas)
+                    {
+                        Utils.WriteLine($"[DEBUG] Required: ID={req.Id}, Type={req.FpgaImage?.Type}, Version={req.FpgaImage?.Version}");
+                    }
+                }
+
+                // Get loaded FPGA images
+                if (EnableDebugOutput)
+                    Utils.WriteLine("[DEBUG] Calling GetLoadedFpgasCliAsync...");
+                var loadedFpgas = await GetLoadedFpgasCliAsync(ipAddress);
+                
+                if (EnableDebugOutput)
+                    Utils.WriteLine($"[DEBUG] Loaded FPGAs: {loadedFpgas?.Count ?? 0}");
+                
+                if (loadedFpgas == null || loadedFpgas.Count == 0)
+                {
+                    if (EnableDebugOutput)
+                        Utils.WriteLine("[DEBUG] No loaded FPGAs found, exiting");
+                    return null;
+                }
+
+                if (EnableDebugOutput)
+                {
+                    foreach (var loaded in loadedFpgas)
+                    {
+                        Utils.WriteLine($"[DEBUG] Loaded: ID={loaded.Id}, Type={loaded.FpgaImage?.Type}, Version={loaded.FpgaImage?.Version}, Compatibility={loaded.ProjectCompatibility}");
+                    }
+                }
+
+                // Find required FPGAs that are not compatible
+                var missingUpdates = new List<FpgaRequirement>();
+                foreach (var required in requiredFpgas)
+                {
+                    var loaded = loadedFpgas.FirstOrDefault(l => l.Id == required.Id);
+                    
+                    if (EnableDebugOutput)
+                        Utils.WriteLine($"[DEBUG] Checking required ID={required.Id}: loaded={loaded != null}, compat={loaded?.ProjectCompatibility}");
+                    
+                    // Check if FPGA needs update
+                    bool needsUpdate = false;
+                    
+                    if (loaded == null)
+                    {
+                        if (EnableDebugOutput)
+                            Utils.WriteLine($"[DEBUG] FPGA ID={required.Id} not loaded");
+                        needsUpdate = true;
+                    }
+                    else if (loaded.FpgaImage?.Type != required.FpgaImage?.Type)
+                    {
+                        if (EnableDebugOutput)
+                            Utils.WriteLine($"[DEBUG] FPGA ID={required.Id} type mismatch: required={required.FpgaImage?.Type}, loaded={loaded.FpgaImage?.Type}");
+                        needsUpdate = true;
+                    }
+                    else if (required.FpgaImage?.Version != "0.0.0.0")
+                    {
+                        // Version 0.0.0.0 means "any version allowed"
+                        // Otherwise check if versions match
+                        if (loaded.FpgaImage?.Version != required.FpgaImage?.Version)
+                        {
+                            if (EnableDebugOutput)
+                                Utils.WriteLine($"[DEBUG] FPGA ID={required.Id} version mismatch: required={required.FpgaImage?.Version}, loaded={loaded.FpgaImage?.Version}");
+                            needsUpdate = true;
+                        }
+                    }
+                    
+                    if (needsUpdate)
+                    {
+                        if (EnableDebugOutput)
+                            Utils.WriteLine($"[DEBUG] FPGA ID={required.Id} needs update");
+                        missingUpdates.Add(required);
+                    }
+                    else
+                    {
+                        if (EnableDebugOutput)
+                            Utils.WriteLine($"[DEBUG] FPGA ID={required.Id} is compatible");
+                    }
+                }
+
+                if (EnableDebugOutput)
+                    Utils.WriteLine($"[DEBUG] Total FPGAs requiring update: {missingUpdates.Count}");
+
+                if (missingUpdates.Count > 0)
+                {
+                    // Build warning message with required FPGA details
+                    var fpgaDetails = string.Join(", ", missingUpdates.Select(f =>
+                        $"Type {f.FpgaImage?.Type} (v{f.FpgaImage?.Version})"));
+
+                    Utils.WriteLine($"(!) FPGA Update required: {fpgaDetails}");
+                    
+                    // Try to find and return FPGA container file for auto-update
+                    return await FindFpgaContainerForCliAsync(missingUpdates);
+                }
+                else
+                {
+                    // All compatible
+                    Utils.WriteLine("(+) FPGA compatibility check: OK");
+                    return null;
+                }
+            }
+            catch (Exception ex)
+            {
+                Utils.WriteLine($"(x) FPGA check error: {ex.Message}");
+                if (EnableDebugOutput)
+                    Utils.WriteLine($"[DEBUG] Exception stack: {ex.StackTrace}");
+                return null;
+            }
+        }
+
+        /// <summary>
+        /// Finds FPGA container file for CLI auto-update
+        /// </summary>
+        private static async Task<string?> FindFpgaContainerForCliAsync(List<FpgaRequirement> missingUpdates)
+        {
+            try
+            {
+                Utils.WriteLine("(i) Searching for FL3X Config installation...");
+                string? fl3xPath = FL3XConfigScanner.FindNewestInstallation(null);
+                
+                if (string.IsNullOrEmpty(fl3xPath))
+                {
+                    Utils.WriteLine("(x) FL3X Config not found, cannot auto-update FPGA images");
+                    return null;
+                }
+
+                if (EnableDebugOutput)
+                    Utils.WriteLine($"[DEBUG] Found FL3X Config: {fl3xPath}");
+
+                string? variantsPath = FL3XConfigScanner.GetFpgaVariantsPath(fl3xPath, null);
+                if (string.IsNullOrEmpty(variantsPath))
+                {
+                    Utils.WriteLine("(x) FL3X Config Variants folder not found");
+                    return null;
+                }
+
+                Utils.WriteLine("(i) Searching for matching FPGA container file...");
+                string? containerFile = FpgaFileFinder.FindContainerFile(missingUpdates, variantsPath, null);
+                
+                if (string.IsNullOrEmpty(containerFile))
+                {
+                    var typesList = string.Join(", ", missingUpdates.Select(f => f.FpgaImage?.Type));
+                    Utils.WriteLine($"(x) No matching FPGA container file found for types: {typesList}");
+                    return null;
+                }
+
+                string filename = System.IO.Path.GetFileName(containerFile);
+                Utils.WriteLine($"(+) Found FPGA container: {filename}");
+                return containerFile;
+            }
+            catch (Exception ex)
+            {
+                Utils.WriteLine($"(x) Failed to find FPGA container: {ex.Message}");
+                if (EnableDebugOutput)
+                    Utils.WriteLine($"[DEBUG] FindFpgaContainerForCliAsync exception: {ex}");
+                return null;
             }
         }
 
@@ -370,6 +611,117 @@ namespace FlexTFTP
                         outputBox.AddLine($"[DEBUG] GetLoadedFpgas: InnerException: {ex.InnerException.Message}", Color.Red, true);
                     }
                 }
+                return null;
+            }
+        }
+
+        /// <summary>
+        /// Waits for device to respond to ping (CLI version)
+        /// </summary>
+        private static bool WaitForDeviceOnlineCli(string ipAddress)
+        {
+            return PingDevice.Ping(ipAddress, MaxWaitTimeSeconds, 3);
+        }
+
+        /// <summary>
+        /// Gets required FPGA images from /api/project (CLI version)
+        /// </summary>
+        private static async Task<List<FpgaRequirement>?> GetRequiredFpgasCliAsync(string ipAddress)
+        {
+            try
+            {
+                if (EnableDebugOutput)
+                    Utils.WriteLine($"[DEBUG] GetRequiredFpgasCliAsync: Creating HttpClient");
+                
+                using (var client = new HttpClient())
+                {
+                    client.Timeout = TimeSpan.FromSeconds(HttpTimeoutSeconds);
+                    client.DefaultRequestHeaders.Add("user-agent", "FlexTFTP");
+
+                    var url = $"http://{ipAddress}/api/project";
+                    if (EnableDebugOutput)
+                        Utils.WriteLine($"[DEBUG] GetRequiredFpgasCliAsync: Calling {url}");
+                    
+                    var response = await client.GetStringAsync(url);
+
+                    if (EnableDebugOutput)
+                        Utils.WriteLine($"[DEBUG] GetRequiredFpgasCliAsync: Response length: {response?.Length ?? 0}");
+
+                    var projectData = JsonConvert.DeserializeObject<ProjectResponse>(response);
+
+                    if (projectData?.Config?.Devices == null)
+                    {
+                        if (EnableDebugOutput)
+                            Utils.WriteLine($"[DEBUG] GetRequiredFpgasCliAsync: projectData.Config.Devices is null");
+                        return null;
+                    }
+
+                    if (EnableDebugOutput)
+                        Utils.WriteLine($"[DEBUG] GetRequiredFpgasCliAsync: Found {projectData.Config.Devices.Count} device(s)");
+
+                    // Collect all FPGAs from all devices
+                    var allFpgas = new List<FpgaRequirement>();
+                    foreach (var device in projectData.Config.Devices)
+                    {
+                        if (device.Fpgas != null)
+                        {
+                            if (EnableDebugOutput)
+                                Utils.WriteLine($"[DEBUG] GetRequiredFpgasCliAsync: Device has {device.Fpgas.Count} FPGA(s)");
+                            allFpgas.AddRange(device.Fpgas);
+                        }
+                    }
+
+                    if (EnableDebugOutput)
+                        Utils.WriteLine($"[DEBUG] GetRequiredFpgasCliAsync: Returning {allFpgas.Count} total FPGA(s)");
+                    return allFpgas;
+                }
+            }
+            catch (Exception ex)
+            {
+                Utils.WriteLine($"(x) Failed to get required FPGAs: {ex.Message}");
+                if (EnableDebugOutput)
+                    Utils.WriteLine($"[DEBUG] GetRequiredFpgasCliAsync: Exception details: {ex}");
+                return null;
+            }
+        }
+
+        /// <summary>
+        /// Gets loaded FPGA images from /api/device/fpga (CLI version)
+        /// </summary>
+        private static async Task<List<LoadedFpga>?> GetLoadedFpgasCliAsync(string ipAddress)
+        {
+            try
+            {
+                if (EnableDebugOutput)
+                    Utils.WriteLine($"[DEBUG] GetLoadedFpgasCliAsync: Creating HttpClient");
+                
+                using (var client = new HttpClient())
+                {
+                    client.Timeout = TimeSpan.FromSeconds(HttpTimeoutSeconds);
+                    client.DefaultRequestHeaders.Add("user-agent", "FlexTFTP");
+
+                    var url = $"http://{ipAddress}/api/device/fpga";
+                    if (EnableDebugOutput)
+                        Utils.WriteLine($"[DEBUG] GetLoadedFpgasCliAsync: Calling {url}");
+                    
+                    var response = await client.GetStringAsync(url);
+
+                    if (EnableDebugOutput)
+                        Utils.WriteLine($"[DEBUG] GetLoadedFpgasCliAsync: Response length: {response?.Length ?? 0}");
+
+                    var loadedFpgas = JsonConvert.DeserializeObject<List<LoadedFpga>>(response);
+                    
+                    if (EnableDebugOutput)
+                        Utils.WriteLine($"[DEBUG] GetLoadedFpgasCliAsync: Returning {loadedFpgas?.Count ?? 0} FPGA(s)");
+                    
+                    return loadedFpgas;
+                }
+            }
+            catch (Exception ex)
+            {
+                Utils.WriteLine($"(x) Failed to get loaded FPGAs: {ex.Message}");
+                if (EnableDebugOutput)
+                    Utils.WriteLine($"[DEBUG] GetLoadedFpgasCliAsync: Exception details: {ex}");
                 return null;
             }
         }
