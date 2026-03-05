@@ -33,6 +33,7 @@ namespace FlexTFTP
             textBoxFilePath = new TextBox();
             buttonDownload = new Button();
             buttonOpenFile = new Button();
+            labelCheckFpga = new Label();
             textBoxPath = new TextBox();
             autoPathCheckBox = new CheckBox();
             outputTextBox = new RichTextBox();
@@ -171,6 +172,20 @@ namespace FlexTFTP
             pictureBoxSettings.TabStop = false;
             pictureBoxSettings.Click += pictureBoxSettings_Click;
             // 
+            // labelCheckFpga
+            // 
+            labelCheckFpga.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
+            labelCheckFpga.AutoSize = true;
+            labelCheckFpga.Cursor = Cursors.Hand;
+            labelCheckFpga.Font = new Font("Segoe UI", 9F);
+            labelCheckFpga.ForeColor = SystemColors.HotTrack;
+            labelCheckFpga.Location = new Point(45, 390);
+            labelCheckFpga.Name = "labelCheckFpga";
+            labelCheckFpga.Size = new Size(69, 15);
+            labelCheckFpga.TabIndex = 20;
+            labelCheckFpga.Text = "Check FPGA";
+            labelCheckFpga.Click += labelCheckFpga_Click;
+            // 
             // pictureBox1
             // 
             pictureBox1.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
@@ -283,6 +298,7 @@ namespace FlexTFTP
             Controls.Add(hotInfo);
             Controls.Add(pictureBox1);
             Controls.Add(pictureBoxSettings);
+            Controls.Add(labelCheckFpga);
             Controls.Add(maskedTextBoxPort);
             Controls.Add(textBoxAddress);
             Controls.Add(autoPathCheckBox);
@@ -337,6 +353,7 @@ namespace FlexTFTP
         private System.Windows.Forms.PictureBox pictureBoxOnlineState;
         private System.Windows.Forms.PictureBox pictureBoxPreset1;
         private System.Windows.Forms.PictureBox pictureBoxPreset2;
+        private System.Windows.Forms.Label labelCheckFpga;
     }
 }
 

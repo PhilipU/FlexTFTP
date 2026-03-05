@@ -411,7 +411,7 @@ namespace FlexTFTP
             if (Settings.Default.CheckFpgaCompatibility && 
                 _file != null && _file.EndsWith(".s19", StringComparison.OrdinalIgnoreCase))
             {
-                Task.Run(() => FpgaCompatibilityChecker.CheckCompatibilityAsync(_address, _form?.OutputBox));
+                Task.Run(() => FpgaCompatibilityChecker.CheckCompatibilityAsync(_address, _form?.OutputBox, _form));
             }
         }
 

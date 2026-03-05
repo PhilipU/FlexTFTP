@@ -45,6 +45,7 @@ namespace FlexTFTP
 
             Settings.Default.ShowFullPath = checkBoxShowFullFilePath.Checked;
             Settings.Default.CheckFpgaCompatibility = checkBoxCheckFpgaCompatibility.Checked;
+            Settings.Default.AutoFpgaUpdate = checkBoxAutoFpgaUpdate.Checked;
 
             // Presets
             //--------
@@ -97,6 +98,7 @@ namespace FlexTFTP
 
             checkBoxShowFullFilePath.Checked = Settings.Default.ShowFullPath;
             checkBoxCheckFpgaCompatibility.Checked = Settings.Default.CheckFpgaCompatibility;
+            checkBoxAutoFpgaUpdate.Checked = Settings.Default.AutoFpgaUpdate;
 
             // Presets
             //--------

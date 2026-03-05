@@ -478,5 +478,17 @@ namespace FlexTFTP.Properties {
                 this["CheckFpgaCompatibility"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool AutoFpgaUpdate {
+            get {
+                return ((bool)(this["AutoFpgaUpdate"]));
+            }
+            set {
+                this["AutoFpgaUpdate"] = value;
+            }
+        }
     }
 }

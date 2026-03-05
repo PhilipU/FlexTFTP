@@ -61,6 +61,7 @@
             this.label2 = new System.Windows.Forms.Label();
             this.maskedTextBoxTransferRetryCount = new System.Windows.Forms.MaskedTextBox();
             this.Misc = new System.Windows.Forms.TabPage();
+            this.checkBoxAutoFpgaUpdate = new System.Windows.Forms.CheckBox();
             this.checkBoxCheckFpgaCompatibility = new System.Windows.Forms.CheckBox();
             this.checkBoxShowFullFilePath = new System.Windows.Forms.CheckBox();
             this.maskedTextBoxOnlineCheckInterval = new System.Windows.Forms.MaskedTextBox();
@@ -418,6 +419,7 @@
             // 
             // Misc
             // 
+            this.Misc.Controls.Add(this.checkBoxAutoFpgaUpdate);
             this.Misc.Controls.Add(this.checkBoxCheckFpgaCompatibility);
             this.Misc.Controls.Add(this.checkBoxShowFullFilePath);
             this.Misc.Controls.Add(this.maskedTextBoxOnlineCheckInterval);
@@ -430,6 +432,16 @@
             this.Misc.TabIndex = 3;
             this.Misc.Text = "Misc";
             this.Misc.UseVisualStyleBackColor = true;
+            // 
+            // checkBoxAutoFpgaUpdate
+            // 
+            this.checkBoxAutoFpgaUpdate.AutoSize = true;
+            this.checkBoxAutoFpgaUpdate.Location = new System.Drawing.Point(6, 105);
+            this.checkBoxAutoFpgaUpdate.Name = "checkBoxAutoFpgaUpdate";
+            this.checkBoxAutoFpgaUpdate.Size = new System.Drawing.Size(160, 17);
+            this.checkBoxAutoFpgaUpdate.TabIndex = 5;
+            this.checkBoxAutoFpgaUpdate.Text = "Auto-Update FPGA Images";
+            this.checkBoxAutoFpgaUpdate.UseVisualStyleBackColor = true;
             // 
             // checkBoxCheckFpgaCompatibility
             // 
@@ -724,6 +736,7 @@
         private System.Windows.Forms.MaskedTextBox maskedTextBoxOnlineCheckInterval;
         private System.Windows.Forms.CheckBox checkBoxShowFullFilePath;
         private System.Windows.Forms.CheckBox checkBoxCheckFpgaCompatibility;
+        private System.Windows.Forms.CheckBox checkBoxAutoFpgaUpdate;
         private System.Windows.Forms.TabPage Presets;
         private System.Windows.Forms.CheckBox checkBoxEnablePresets;
         private System.Windows.Forms.GroupBox groupBoxPreset1;

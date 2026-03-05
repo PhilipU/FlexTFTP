@@ -35,6 +35,23 @@ namespace FlexTFTP
             }
         }
 
+        private void labelCheckFpga_Click(object sender, EventArgs e)
+        {
+            string ipAddress = textBoxAddress.Text;
+            
+            if (string.IsNullOrWhiteSpace(ipAddress))
+            {
+                OutputBox.AddLine("⚠️ Please enter an IP address", Color.Orange, true);
+                return;
+            }
+
+            OutputBox.AddLine("Starting manual FPGA compatibility check...", Color.Blue, true);
+            System.Threading.Tasks.Task.Run(() =>
+            {
+                FpgaCompatibilityChecker.CheckCompatibilityAsync(ipAddress, OutputBox, this);
+            });
+        }
+
         private void outputTextBox_LinkClicked(object sender, LinkClickedEventArgs e)
         {
             if(e.LinkText == null)

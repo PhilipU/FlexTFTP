@@ -26,7 +26,8 @@ namespace FlexTFTP
         /// </summary>
         /// <param name="ipAddress">IP address of the device</param>
         /// <param name="outputBox">OutputBox for logging messages</param>
-        public static void CheckCompatibilityAsync(string ipAddress, OutputBox? outputBox)
+        /// <param name="form">Main form for triggering transfers</param>
+        public static void CheckCompatibilityAsync(string ipAddress, OutputBox? outputBox, FlexTftpForm? form = null)
         {
             if (EnableDebugOutput)
                 outputBox?.AddLine("[DEBUG] FPGA Check: Method entered", Color.Gray, true);
@@ -112,6 +113,9 @@ namespace FlexTFTP
                     
                     var warningMessage = $"⚠️ FPGA Update required: {fpgaDetails}";
                     outputBox.AddLine(warningMessage, Color.DarkOrange, true);
+
+                    // Trigger auto-update if enabled
+                    TriggerAutoUpdate(missingUpdates, ipAddress, outputBox, form);
                 }
                 else
                 {
@@ -127,6 +131,84 @@ namespace FlexTFTP
                     outputBox?.AddLine($"[DEBUG] FPGA Check: Stack trace: {ex.StackTrace}", Color.Gray, true);
                 }
                 // Silently ignore all errors as requested
+            }
+        }
+
+        /// <summary>
+        /// Triggers automatic FPGA update if enabled
+        /// </summary>
+        private static void TriggerAutoUpdate(
+            List<FpgaRequirement> missingUpdates,
+            string ipAddress,
+            OutputBox outputBox,
+            FlexTftpForm? form)
+        {  
+            if (!Properties.Settings.Default.AutoFpgaUpdate)
+            {
+                if (EnableDebugOutput)
+                    outputBox.AddLine("[DEBUG] AutoUpdate: Auto-update disabled in settings", Color.Gray, true);
+                return;
+            }
+
+            if (form == null)
+            {
+                if (EnableDebugOutput)
+                    outputBox.AddLine("[DEBUG] AutoUpdate: No form reference provided", Color.Gray, true);
+                return;
+            }
+
+            try
+            {
+                outputBox.AddLine("Searching for FL3X Config installation...", Color.Gray, true);
+                string? fl3xPath = FL3XConfigScanner.FindNewestInstallation(outputBox);
+                
+                if (string.IsNullOrEmpty(fl3xPath))
+                {
+                    outputBox.AddLine("⚠️ FL3X Config not found, cannot auto-update FPGA images", Color.Orange, true);
+                    return;
+                }
+
+                outputBox.AddLine($"Found FL3X Config: {fl3xPath}", Color.Gray, true);
+
+                string? variantsPath = FL3XConfigScanner.GetFpgaVariantsPath(fl3xPath, outputBox);
+                if (string.IsNullOrEmpty(variantsPath))
+                {
+                    outputBox.AddLine("⚠️ FL3X Config Variants folder not found", Color.Orange, true);
+                    return;
+                }
+
+                outputBox.AddLine("Searching for matching FPGA container file...", Color.Gray, true);
+                string? containerFile = FpgaFileFinder.FindContainerFile(missingUpdates, variantsPath, outputBox);
+                
+                if (string.IsNullOrEmpty(containerFile))
+                {
+                    var typesList = string.Join(", ", missingUpdates.Select(f => f.FpgaImage?.Type));
+                    outputBox.AddLine($"⚠️ No matching FPGA container file found for types: {typesList}", Color.Orange, true);
+                    return;
+                }
+
+                string filename = System.IO.Path.GetFileName(containerFile);
+                outputBox.AddLine($"Found FPGA container: {filename}", Color.Blue, true);
+                outputBox.AddLine("Starting automatic FPGA update...", Color.Blue, true);
+
+                // Start transfer on UI thread
+                form.Invoke(new Action(() =>
+                {
+                    try
+                    {
+                        form.Transfer.StartTransfer(containerFile, "fpga/application", ipAddress, 69);
+                    }
+                    catch (Exception ex)
+                    {
+                        outputBox.AddLine($"⚠️ Failed to start FPGA update: {ex.Message}", Color.Red, true);
+                    }
+                }));
+            }
+            catch (Exception ex)
+            {
+                if (EnableDebugOutput)
+                    outputBox.AddLine($"[DEBUG] AutoUpdate: Exception: {ex.Message}", Color.Red, true);
+                outputBox.AddLine($"⚠️ Auto-update failed: {ex.Message}", Color.Orange, true);
             }
         }
 
@@ -312,7 +394,7 @@ namespace FlexTFTP
             public List<FpgaRequirement>? Fpgas { get; set; }
         }
 
-        private class FpgaRequirement
+        public class FpgaRequirement
         {
             [JsonProperty("id")]
             public int Id { get; set; }
@@ -333,7 +415,7 @@ namespace FlexTFTP
             public string? ProjectCompatibility { get; set; }
         }
 
-        private class FpgaImageInfo
+        public class FpgaImageInfo
         {
             [JsonProperty("version")]
             public string? Version { get; set; }
