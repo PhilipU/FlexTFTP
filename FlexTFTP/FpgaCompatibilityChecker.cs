@@ -109,6 +109,13 @@ namespace FlexTFTP
                             outputBox.AddLine($"[DEBUG] FPGA ID={required.Id} not loaded", Color.Gray, true);
                         needsUpdate = true;
                     }
+                    else if (required.FpgaImage?.Type == "0x0000")
+                    {
+                        // Type 0x0000 means "any FPGA image allowed" - wildcard
+                        if (EnableDebugOutput)
+                            outputBox.AddLine($"[DEBUG] FPGA ID={required.Id} wildcard type (0x0000), any image accepted", Color.Gray, true);
+                        needsUpdate = false;
+                    }
                     else if (loaded.FpgaImage?.Type != required.FpgaImage?.Type)
                     {
                         if (EnableDebugOutput)
@@ -264,6 +271,13 @@ namespace FlexTFTP
                         if (EnableDebugOutput)
                             Utils.WriteLine($"[DEBUG] FPGA ID={required.Id} not loaded");
                         needsUpdate = true;
+                    }
+                    else if (required.FpgaImage?.Type == "0x0000")
+                    {
+                        // Type 0x0000 means "any FPGA image allowed" - wildcard
+                        if (EnableDebugOutput)
+                            Utils.WriteLine($"[DEBUG] FPGA ID={required.Id} wildcard type (0x0000), any image accepted");
+                        needsUpdate = false;
                     }
                     else if (loaded.FpgaImage?.Type != required.FpgaImage?.Type)
                     {
