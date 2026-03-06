@@ -12,7 +12,7 @@ namespace FlexTFTP
     /// </summary>
     public static class FpgaFileFinder
     {
-        private const bool EnableDebugOutput = true;
+        private const bool EnableDebugOutput = false;
 
         /// <summary>
         /// Represents a parsed FPGA image from a filename

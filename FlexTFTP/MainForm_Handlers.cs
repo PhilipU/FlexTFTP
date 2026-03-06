@@ -41,11 +41,11 @@ namespace FlexTFTP
             
             if (string.IsNullOrWhiteSpace(ipAddress))
             {
-                OutputBox.AddLine("⚠️ Please enter an IP address", Color.Orange, true);
+                OutputBox.AddLine("Please enter an IP address", Color.Orange, true);
                 return;
             }
 
-            OutputBox.AddLine("Starting manual FPGA compatibility check...", Color.Blue, true);
+            OutputBox.AddLine("Starting manual FPGA compatibility check...", Color.Black, true);
             System.Threading.Tasks.Task.Run(() =>
             {
                 FpgaCompatibilityChecker.CheckCompatibilityAsync(ipAddress, OutputBox, this);

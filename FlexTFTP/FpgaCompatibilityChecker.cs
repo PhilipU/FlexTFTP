@@ -39,21 +39,45 @@ namespace FlexTFTP
                 return;
             }
 
+            Thread.Sleep(RestApiDelaySeconds * 1000);
+
             try
             {
-                // Log start of check
-                outputBox.AddLine("Waiting for device to restart...", Color.Gray, true);
-
-                // Wait for device to come back online
-                if (EnableDebugOutput)
-                    outputBox.AddLine("[DEBUG] FPGA Check: Calling WaitForDeviceOnline", Color.Gray, true);
-                
-                if (!WaitForDeviceOnline(ipAddress, outputBox))
+                // Check if device is already online
+                bool isAlreadyOnline = false;
+                try
                 {
-                    outputBox.AddLine("Device did not respond, skipping FPGA check", Color.Gray, true);
+                    using (var ping = new Ping())
+                    {
+                        var reply = ping.Send(ipAddress, 1000);
+                        isAlreadyOnline = (reply?.Status == IPStatus.Success);
+                    }
+                }
+                catch
+                {
+                    isAlreadyOnline = false;
+                }
+
+                // Only show "waiting" message if device is not yet online
+                if (!isAlreadyOnline)
+                {
+                    outputBox.AddLine("Waiting for device to restart...", Color.Gray, true);
+
+                    // Wait for device to come back online
                     if (EnableDebugOutput)
-                        outputBox.AddLine("[DEBUG] FPGA Check: Device timeout, exiting", Color.Gray, true);
-                    return;
+                        outputBox.AddLine("[DEBUG] FPGA Check: Calling WaitForDeviceOnline", Color.Gray, true);
+                    
+                    if (!WaitForDeviceOnline(ipAddress, outputBox))
+                    {
+                        outputBox.AddLine("Device did not respond, skipping FPGA check", Color.Gray, true);
+                        if (EnableDebugOutput)
+                            outputBox.AddLine("[DEBUG] FPGA Check: Device timeout, exiting", Color.Gray, true);
+                        return;
+                    }
+                }
+                else if (EnableDebugOutput)
+                {
+                    outputBox.AddLine("[DEBUG] Device already online, skipping restart wait", Color.Gray, true);
                 }
 
                 // Additional delay for REST API to be ready
@@ -68,8 +92,7 @@ namespace FlexTFTP
                 var requiredFpgas = GetRequiredFpgas(ipAddress, outputBox);
                 if (requiredFpgas == null || requiredFpgas.Count == 0)
                 {
-                    if (EnableDebugOutput)
-                        outputBox.AddLine($"[DEBUG] FPGA Check: No required FPGAs found (null={requiredFpgas == null}, count={requiredFpgas?.Count ?? 0})", Color.Gray, true);
+                    outputBox.AddLine($"Failed to check for required FPGA images", Color.Gray, true);
                     return;
                 }
 
@@ -154,10 +177,10 @@ namespace FlexTFTP
                 {
                     // Build warning message with required FPGA details
                     var fpgaDetails = string.Join(", ", missingUpdates.Select(f => 
-                        $"Type {f.FpgaImage?.Type} (v{f.FpgaImage?.Version})"));
+                        $"{f.FpgaImage?.Type} v{f.FpgaImage?.Version}"));
                     
-                    var warningMessage = $"⚠️ FPGA Update required: {fpgaDetails}";
-                    outputBox.AddLine(warningMessage, Color.DarkOrange, true);
+                    var warningMessage = $"FPGA Update required: {fpgaDetails}";
+                    outputBox.AddLine(warningMessage, Color.DarkRed, true);
 
                     // Trigger auto-update if enabled
                     TriggerAutoUpdate(missingUpdates, ipAddress, outputBox, form);
@@ -193,14 +216,36 @@ namespace FlexTFTP
 
             try
             {
-                // Log start of check
-                Utils.WriteLine("(i) Waiting for device to restart...");
-
-                // Wait for device to come back online
-                if (!WaitForDeviceOnlineCli(ipAddress))
+                // Check if device is already online
+                bool isAlreadyOnline = false;
+                try
                 {
-                    Utils.WriteLine("(x) Device did not respond, skipping FPGA check");
-                    return null;
+                    using (var ping = new Ping())
+                    {
+                        var reply = ping.Send(ipAddress, 1000);
+                        isAlreadyOnline = (reply?.Status == IPStatus.Success);
+                    }
+                }
+                catch
+                {
+                    isAlreadyOnline = false;
+                }
+
+                // Only show "waiting" message if device is not yet online
+                if (!isAlreadyOnline)
+                {
+                    Utils.WriteLine("(i) Waiting for device to restart...");
+                    
+                    // Wait for device to come back online
+                    if (!WaitForDeviceOnlineCli(ipAddress))
+                    {
+                        Utils.WriteLine("(x) Device did not respond, skipping FPGA check");
+                        return null;
+                    }
+                }
+                else if (EnableDebugOutput)
+                {
+                    Utils.WriteLine("[DEBUG] Device already online, skipping restart wait");
                 }
 
                 // Additional delay for REST API to be ready
@@ -347,7 +392,8 @@ namespace FlexTFTP
         {
             try
             {
-                Utils.WriteLine("(i) Searching for FL3X Config installation...");
+                if(EnableDebugOutput)
+                    Utils.WriteLine("(i) Searching for FL3X Config installation...");
                 string? fl3xPath = FL3XConfigScanner.FindNewestInstallation(null);
                 
                 if (string.IsNullOrEmpty(fl3xPath))
@@ -414,37 +460,40 @@ namespace FlexTFTP
 
             try
             {
-                outputBox.AddLine("Searching for FL3X Config installation...", Color.Gray, true);
+                if(EnableDebugOutput)
+                    outputBox.AddLine("Searching for FL3X Config installation...", Color.Gray, true);
                 string? fl3xPath = FL3XConfigScanner.FindNewestInstallation(outputBox);
                 
                 if (string.IsNullOrEmpty(fl3xPath))
                 {
-                    outputBox.AddLine("⚠️ FL3X Config not found, cannot auto-update FPGA images", Color.Orange, true);
+                    outputBox.AddLine("FL3X Config not found, cannot auto-update FPGA images", Color.DarkRed, true);
                     return;
                 }
 
-                outputBox.AddLine($"Found FL3X Config: {fl3xPath}", Color.Gray, true);
+                if(EnableDebugOutput)
+                    outputBox.AddLine($"Found FL3X Config: {fl3xPath}", Color.Gray, true);
 
                 string? variantsPath = FL3XConfigScanner.GetFpgaVariantsPath(fl3xPath, outputBox);
                 if (string.IsNullOrEmpty(variantsPath))
                 {
-                    outputBox.AddLine("⚠️ FL3X Config Variants folder not found", Color.Orange, true);
+                    outputBox.AddLine("FL3X Config Variants folder not found", Color.DarkRed, true);
                     return;
                 }
 
-                outputBox.AddLine("Searching for matching FPGA container file...", Color.Gray, true);
+                if(EnableDebugOutput)
+                    outputBox.AddLine("Searching for matching FPGA container file...", Color.Gray, true);
                 string? containerFile = FpgaFileFinder.FindContainerFile(missingUpdates, variantsPath, outputBox);
                 
                 if (string.IsNullOrEmpty(containerFile))
                 {
                     var typesList = string.Join(", ", missingUpdates.Select(f => f.FpgaImage?.Type));
-                    outputBox.AddLine($"⚠️ No matching FPGA container file found for types: {typesList}", Color.Orange, true);
+                    outputBox.AddLine($"No matching FPGA file found for: {typesList}", Color.DarkRed, true);
                     return;
                 }
 
                 string filename = System.IO.Path.GetFileName(containerFile);
-                outputBox.AddLine($"Found FPGA container: {filename}", Color.Blue, true);
-                outputBox.AddLine("Starting automatic FPGA update...", Color.Blue, true);
+                outputBox.AddLine($"Found FPGA container: {filename}", Color.Black, true);
+                outputBox.AddLine("Starting automatic FPGA update...", Color.Black, true);
 
                 // Start transfer on UI thread
                 form.Invoke(new Action(() =>
@@ -455,7 +504,7 @@ namespace FlexTFTP
                     }
                     catch (Exception ex)
                     {
-                        outputBox.AddLine($"⚠️ Failed to start FPGA update: {ex.Message}", Color.Red, true);
+                        outputBox.AddLine($"Failed to start FPGA update: {ex.Message}", Color.Red, true);
                     }
                 }));
             }
@@ -463,7 +512,7 @@ namespace FlexTFTP
             {
                 if (EnableDebugOutput)
                     outputBox.AddLine($"[DEBUG] AutoUpdate: Exception: {ex.Message}", Color.Red, true);
-                outputBox.AddLine($"⚠️ Auto-update failed: {ex.Message}", Color.Orange, true);
+                outputBox.AddLine($"Auto-update failed: {ex.Message}", Color.DarkRed, true);
             }
         }
 
