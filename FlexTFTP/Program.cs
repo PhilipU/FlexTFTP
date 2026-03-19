@@ -297,7 +297,7 @@ namespace FlexTFTP
                         Utils.WriteLine("(i) Starting FPGA compatibility check...");
                         try
                         {
-                            string? fpgaFile = FpgaCompatibilityChecker.CheckCompatibilityCliAsync(targetIp).Result;
+                            string? fpgaFile = FpgaCompatibilityChecker.CheckCompatibilityCliAsync(targetIp, file).Result;
                             
                             // If FPGA update is needed, start automatic update
                             if (!string.IsNullOrEmpty(fpgaFile))

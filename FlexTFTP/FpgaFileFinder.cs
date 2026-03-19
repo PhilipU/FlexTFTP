@@ -32,11 +32,13 @@ namespace FlexTFTP
         /// Finds a container file that contains all required FPGA images
         /// </summary>
         /// <param name="requiredFpgas">List of required FPGA images</param>
-        /// <param name="variantsPath">Path to FL3X Config Variants folder</param>
+        /// <param name="s19FilePath">Path to the S19 file that was transferred (optional)</param>
+        /// <param name="variantsPath">Path to FL3X Config Variants folder (fallback)</param>
         /// <param name="outputBox">Optional OutputBox for logging</param>
         /// <returns>Path to matching container file, or null if not found</returns>
         public static string? FindContainerFile(
             List<FpgaCompatibilityChecker.FpgaRequirement> requiredFpgas,
+            string? s19FilePath,
             string variantsPath,
             OutputBox? outputBox = null)
         {
@@ -47,21 +49,8 @@ namespace FlexTFTP
                 return null;
             }
 
-            if (string.IsNullOrEmpty(variantsPath) || !Directory.Exists(variantsPath))
-            {
-                if (EnableDebugOutput)
-                    outputBox?.AddLine($"[DEBUG] FpgaFileFinder: Variants path not found: {variantsPath}", Color.Gray, true);
-                return null;
-            }
-
             try
             {
-                // Get all .fpga files
-                string[] fpgaFiles = Directory.GetFiles(variantsPath, "*.fpga*", SearchOption.TopDirectoryOnly);
-                
-                if (EnableDebugOutput)
-                    outputBox?.AddLine($"[DEBUG] FpgaFileFinder: Found {fpgaFiles.Length} FPGA file(s) in {variantsPath}", Color.Gray, true);
-
                 // Parse required FPGAs
                 var requiredTypes = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
                 var requiredVersions = new Dictionary<string, Version>(StringComparer.OrdinalIgnoreCase);
@@ -83,20 +72,122 @@ namespace FlexTFTP
                     }
                 }
 
+                // Determine search paths in order of priority
+                var searchPaths = new List<string>();
+
+                // 1. First check in the same folder as the S19 file
+                if (!string.IsNullOrEmpty(s19FilePath) && File.Exists(s19FilePath))
+                {
+                    string s19Directory = Path.GetDirectoryName(s19FilePath);
+                    if (!string.IsNullOrEmpty(s19Directory) && Directory.Exists(s19Directory))
+                    {
+                        searchPaths.Add(s19Directory);
+                        if (EnableDebugOutput)
+                            outputBox?.AddLine($"[DEBUG] FpgaFileFinder: Added S19 directory: {s19Directory}", Color.Gray, true);
+                    }
+
+                    // 2. Check if S19 is in "project/compie" subdirectory
+                    // If yes, check parent level of "project" folder
+                    if (!string.IsNullOrEmpty(s19Directory))
+                    {
+                        // Normalize path separators
+                        string normalizedPath = s19Directory.Replace('\\', '/');
+                        
+                        // Check if path contains "project/compie" pattern (case-insensitive)
+                        int projectIndex = normalizedPath.LastIndexOf("/project/compie", StringComparison.OrdinalIgnoreCase);
+                        if (projectIndex == -1)
+                        {
+                            // Also check with backslashes
+                            projectIndex = s19Directory.LastIndexOf("\\project\\compie", StringComparison.OrdinalIgnoreCase);
+                        }
+
+                        if (projectIndex >= 0)
+                        {
+                            // Get parent directory of "project" folder
+                            string projectParent = s19Directory.Substring(0, projectIndex);
+                            if (!string.IsNullOrEmpty(projectParent) && Directory.Exists(projectParent))
+                            {
+                                searchPaths.Add(projectParent);
+                                if (EnableDebugOutput)
+                                    outputBox?.AddLine($"[DEBUG] FpgaFileFinder: Added project parent directory: {projectParent}", Color.Gray, true);
+                            }
+                        }
+                    }
+                }
+
+                // 3. Finally add the FL3X Config variants path as fallback
+                if (!string.IsNullOrEmpty(variantsPath) && Directory.Exists(variantsPath))
+                {
+                    searchPaths.Add(variantsPath);
+                    if (EnableDebugOutput)
+                        outputBox?.AddLine($"[DEBUG] FpgaFileFinder: Added variants path: {variantsPath}", Color.Gray, true);
+                }
+
+                // Search in each path
+                foreach (string searchPath in searchPaths)
+                {
+                    if (EnableDebugOutput)
+                        outputBox?.AddLine($"[DEBUG] FpgaFileFinder: Searching in: {searchPath}", Color.Gray, true);
+
+                    string? result = SearchInDirectory(searchPath, requiredTypes, requiredVersions, outputBox);
+                    if (result != null)
+                    {
+                        if (EnableDebugOutput)
+                            outputBox?.AddLine($"[DEBUG] FpgaFileFinder: Found in {searchPath}: {Path.GetFileName(result)}", Color.Green, true);
+                        return result;
+                    }
+                }
+
+                if (EnableDebugOutput)
+                    outputBox?.AddLine("[DEBUG] FpgaFileFinder: No matching container file found in any search path", Color.Gray, true);
+            }
+            catch (Exception ex)
+            {
+                if (EnableDebugOutput)
+                    outputBox?.AddLine($"[DEBUG] FpgaFileFinder: Error: {ex.Message}", Color.Red, true);
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        /// Searches for matching FPGA files in a specific directory
+        /// </summary>
+        private static string? SearchInDirectory(
+            string searchPath,
+            HashSet<string> requiredTypes,
+            Dictionary<string, Version> requiredVersions,
+            OutputBox? outputBox)
+        {
+            try
+            {
+                if (!Directory.Exists(searchPath))
+                {
+                    if (EnableDebugOutput)
+                        outputBox?.AddLine($"[DEBUG] SearchInDirectory: Path does not exist: {searchPath}", Color.Gray, true);
+                    return null;
+                }
+
+                // Get all .fpga files
+                string[] fpgaFiles = Directory.GetFiles(searchPath, "*.fpga*", SearchOption.TopDirectoryOnly);
+                
+                if (EnableDebugOutput)
+                    outputBox?.AddLine($"[DEBUG] SearchInDirectory: Found {fpgaFiles.Length} FPGA file(s) in {searchPath}", Color.Gray, true);
+
                 // Search for matching container file
                 foreach (string filePath in fpgaFiles)
                 {
                     string filename = Path.GetFileNameWithoutExtension(filePath);
                     
                     if (EnableDebugOutput)
-                        outputBox?.AddLine($"[DEBUG] FpgaFileFinder: Checking file: {filename}", Color.Gray, true);
+                        outputBox?.AddLine($"[DEBUG] SearchInDirectory: Checking file: {filename}", Color.Gray, true);
 
                     var parsedImages = ParseFpgaFileName(filename);
                     
                     if (parsedImages.Count == 0)
                     {
                         if (EnableDebugOutput)
-                            outputBox?.AddLine($"[DEBUG] FpgaFileFinder: Could not parse filename: {filename}", Color.Gray, true);
+                            outputBox?.AddLine($"[DEBUG] SearchInDirectory: Could not parse filename: {filename}", Color.Gray, true);
                         continue;
                     }
 
@@ -110,7 +201,7 @@ namespace FlexTFTP
                         if (EnableDebugOutput)
                         {
                             var missingTypes = requiredTypes.Except(fileTypes).ToList();
-                            outputBox?.AddLine($"[DEBUG] FpgaFileFinder: File missing types: {string.Join(", ", missingTypes)}", Color.Gray, true);
+                            outputBox?.AddLine($"[DEBUG] SearchInDirectory: File missing types: {string.Join(", ", missingTypes)}", Color.Gray, true);
                         }
                         continue;
                     }
@@ -126,7 +217,7 @@ namespace FlexTFTP
                             if (img.Version < requiredVersion)
                             {
                                 if (EnableDebugOutput)
-                                    outputBox?.AddLine($"[DEBUG] FpgaFileFinder: Version too old for {imgType}: {img.Version} < {requiredVersion}", Color.Gray, true);
+                                    outputBox?.AddLine($"[DEBUG] SearchInDirectory: Version too old for {imgType}: {img.Version} < {requiredVersion}", Color.Gray, true);
                                 versionsMatch = false;
                                 break;
                             }
@@ -136,13 +227,13 @@ namespace FlexTFTP
                     if (versionsMatch)
                     {
                         if (EnableDebugOutput)
-                            outputBox?.AddLine($"[DEBUG] FpgaFileFinder: Found matching container: {filename}", Color.Green, true);
+                            outputBox?.AddLine($"[DEBUG] SearchInDirectory: Found matching container: {filename}", Color.Green, true);
                         return filePath;
                     }
                 }
 
                 if (EnableDebugOutput)
-                    outputBox?.AddLine("[DEBUG] FpgaFileFinder: No matching container file found", Color.Gray, true);
+                    outputBox?.AddLine($"[DEBUG] SearchInDirectory: No matching file found in {searchPath}", Color.Gray, true);
             }
             catch (Exception ex)
             {

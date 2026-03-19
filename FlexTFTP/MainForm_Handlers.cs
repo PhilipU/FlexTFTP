@@ -48,7 +48,7 @@ namespace FlexTFTP
             OutputBox.AddLine("Starting manual FPGA compatibility check...", Color.Black, true);
             System.Threading.Tasks.Task.Run(() =>
             {
-                FpgaCompatibilityChecker.CheckCompatibilityAsync(ipAddress, OutputBox, this);
+                FpgaCompatibilityChecker.CheckCompatibilityAsync(ipAddress, OutputBox, null, this);
             });
         }
 

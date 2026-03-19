@@ -26,8 +26,9 @@ namespace FlexTFTP
         /// </summary>
         /// <param name="ipAddress">IP address of the device</param>
         /// <param name="outputBox">OutputBox for logging messages</param>
+        /// <param name="s19FilePath">Path to the S19 file that was transferred (optional)</param>
         /// <param name="form">Main form for triggering transfers</param>
-        public static void CheckCompatibilityAsync(string ipAddress, OutputBox? outputBox, FlexTftpForm? form = null)
+        public static void CheckCompatibilityAsync(string ipAddress, OutputBox? outputBox, string? s19FilePath = null, FlexTftpForm? form = null)
         {
             if (EnableDebugOutput)
                 outputBox?.AddLine("[DEBUG] FPGA Check: Method entered", Color.Gray, true);
@@ -183,7 +184,7 @@ namespace FlexTFTP
                     outputBox.AddLine(warningMessage, Color.DarkRed, true);
 
                     // Trigger auto-update if enabled
-                    TriggerAutoUpdate(missingUpdates, ipAddress, outputBox, form);
+                    TriggerAutoUpdate(missingUpdates, ipAddress, outputBox, s19FilePath, form);
                 }
                 else
                 {
@@ -206,8 +207,9 @@ namespace FlexTFTP
         /// Checks FPGA compatibility for CLI mode (console output)
         /// </summary>
         /// <param name="ipAddress">IP address of the device</param>
+        /// <param name="s19FilePath">Path to the S19 file that was transferred (optional)</param>
         /// <returns>Path to FPGA container file if update is needed, null otherwise</returns>
-        public static async Task<string?> CheckCompatibilityCliAsync(string ipAddress)
+        public static async Task<string?> CheckCompatibilityCliAsync(string ipAddress, string? s19FilePath = null)
         {
             if (string.IsNullOrEmpty(ipAddress))
             {
@@ -367,7 +369,7 @@ namespace FlexTFTP
                     Utils.WriteLine($"(!) FPGA Update required: {fpgaDetails}");
                     
                     // Try to find and return FPGA container file for auto-update
-                    return await FindFpgaContainerForCliAsync(missingUpdates);
+                    return await FindFpgaContainerForCliAsync(missingUpdates, s19FilePath);
                 }
                 else
                 {
@@ -388,7 +390,7 @@ namespace FlexTFTP
         /// <summary>
         /// Finds FPGA container file for CLI auto-update
         /// </summary>
-        private static async Task<string?> FindFpgaContainerForCliAsync(List<FpgaRequirement> missingUpdates)
+        private static async Task<string?> FindFpgaContainerForCliAsync(List<FpgaRequirement> missingUpdates, string? s19FilePath)
         {
             try
             {
@@ -413,7 +415,7 @@ namespace FlexTFTP
                 }
 
                 Utils.WriteLine("(i) Searching for matching FPGA container file...");
-                string? containerFile = FpgaFileFinder.FindContainerFile(missingUpdates, variantsPath, null);
+                string? containerFile = FpgaFileFinder.FindContainerFile(missingUpdates, s19FilePath, variantsPath, null);
                 
                 if (string.IsNullOrEmpty(containerFile))
                 {
@@ -442,6 +444,7 @@ namespace FlexTFTP
             List<FpgaRequirement> missingUpdates,
             string ipAddress,
             OutputBox outputBox,
+            string? s19FilePath,
             FlexTftpForm? form)
         {  
             if (!Properties.Settings.Default.AutoFpgaUpdate)
@@ -482,7 +485,7 @@ namespace FlexTFTP
 
                 if(EnableDebugOutput)
                     outputBox.AddLine("Searching for matching FPGA container file...", Color.Gray, true);
-                string? containerFile = FpgaFileFinder.FindContainerFile(missingUpdates, variantsPath, outputBox);
+                string? containerFile = FpgaFileFinder.FindContainerFile(missingUpdates, s19FilePath, variantsPath, outputBox);
                 
                 if (string.IsNullOrEmpty(containerFile))
                 {
