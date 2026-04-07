@@ -149,12 +149,20 @@ namespace FlexTFTP
                     else if (required.FpgaImage?.Version != "0.0.0.0")
                     {
                         // Version 0.0.0.0 means "any version allowed"
-                        // Otherwise check if versions match
-                        if (loaded.FpgaImage?.Version != required.FpgaImage?.Version)
+                        // Otherwise check if loaded version is older than required version
+                        // Newer versions are always acceptable and should not trigger an update
+                        int versionComparison = CompareVersions(loaded.FpgaImage?.Version, required.FpgaImage?.Version);
+                        if (versionComparison < 0)
                         {
+                            // Loaded version is older than required - needs update
                             if (EnableDebugOutput)
-                                outputBox.AddLine($"[DEBUG] FPGA ID={required.Id} version mismatch: required={required.FpgaImage?.Version}, loaded={loaded.FpgaImage?.Version}", Color.Gray, true);
+                                outputBox.AddLine($"[DEBUG] FPGA ID={required.Id} version too old: required={required.FpgaImage?.Version}, loaded={loaded.FpgaImage?.Version}", Color.Gray, true);
                             needsUpdate = true;
+                        }
+                        else if (EnableDebugOutput && versionComparison > 0)
+                        {
+                            // Loaded version is newer - this is acceptable
+                            outputBox.AddLine($"[DEBUG] FPGA ID={required.Id} has newer version: required={required.FpgaImage?.Version}, loaded={loaded.FpgaImage?.Version} (OK)", Color.Gray, true);
                         }
                     }
                     
@@ -335,12 +343,20 @@ namespace FlexTFTP
                     else if (required.FpgaImage?.Version != "0.0.0.0")
                     {
                         // Version 0.0.0.0 means "any version allowed"
-                        // Otherwise check if versions match
-                        if (loaded.FpgaImage?.Version != required.FpgaImage?.Version)
+                        // Otherwise check if loaded version is older than required version
+                        // Newer versions are always acceptable and should not trigger an update
+                        int versionComparison = CompareVersions(loaded.FpgaImage?.Version, required.FpgaImage?.Version);
+                        if (versionComparison < 0)
                         {
+                            // Loaded version is older than required - needs update
                             if (EnableDebugOutput)
-                                Utils.WriteLine($"[DEBUG] FPGA ID={required.Id} version mismatch: required={required.FpgaImage?.Version}, loaded={loaded.FpgaImage?.Version}");
+                                Utils.WriteLine($"[DEBUG] FPGA ID={required.Id} version too old: required={required.FpgaImage?.Version}, loaded={loaded.FpgaImage?.Version}");
                             needsUpdate = true;
+                        }
+                        else if (EnableDebugOutput && versionComparison > 0)
+                        {
+                            // Loaded version is newer - this is acceptable
+                            Utils.WriteLine($"[DEBUG] FPGA ID={required.Id} has newer version: required={required.FpgaImage?.Version}, loaded={loaded.FpgaImage?.Version} (OK)");
                         }
                     }
                     
@@ -843,5 +859,39 @@ namespace FlexTFTP
         }
 
         #endregion
+
+        /// <summary>
+        /// Compares two version strings
+        /// </summary>
+        /// <param name="version1">First version string (e.g., "1.2.3.4")</param>
+        /// <param name="version2">Second version string (e.g., "1.2.3.4")</param>
+        /// <returns>
+        /// -1 if version1 is older than version2,
+        /// 0 if versions are equal,
+        /// 1 if version1 is newer than version2
+        /// </returns>
+        private static int CompareVersions(string? version1, string? version2)
+        {
+            // Handle null or empty cases
+            if (string.IsNullOrEmpty(version1) && string.IsNullOrEmpty(version2))
+                return 0;
+            if (string.IsNullOrEmpty(version1))
+                return -1; // No version is considered older
+            if (string.IsNullOrEmpty(version2))
+                return 1;
+
+            try
+            {
+                // Try to parse as Version objects for proper comparison
+                var v1 = new Version(version1);
+                var v2 = new Version(version2);
+                return v1.CompareTo(v2);
+            }
+            catch
+            {
+                // Fallback to string comparison if parsing fails
+                return string.Compare(version1, version2, StringComparison.OrdinalIgnoreCase);
+            }
+        }
     }
 }
