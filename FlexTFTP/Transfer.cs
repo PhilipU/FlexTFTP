@@ -138,6 +138,14 @@ namespace FlexTFTP
                 return StopTransfer();
             }
 
+            // Cancel any running FPGA check before starting transfer
+            if (FpgaCompatibilityChecker.IsInProgress())
+            {
+                FpgaCompatibilityChecker.CancelCheck();
+                // Give it a moment to clean up
+                System.Threading.Thread.Sleep(100);
+            }
+
             _transferInProgress = true;
 
             if (!File.Exists(file))
@@ -411,7 +419,14 @@ namespace FlexTFTP
             if (Settings.Default.CheckFpgaCompatibility && 
                 _file != null && _file.EndsWith(".s19", StringComparison.OrdinalIgnoreCase))
             {
-                Task.Run(() => FpgaCompatibilityChecker.CheckCompatibilityAsync(_address, _form?.OutputBox, _file, _form));
+                // Start FPGA check and update button
+                var cancellationToken = FpgaCompatibilityChecker.StartCheck(_form);
+                if (_form != null)
+                {
+                    _form.SetTransferStateButtonText("Cancel FPGA");
+                }
+                
+                Task.Run(() => FpgaCompatibilityChecker.CheckCompatibilityAsync(_address, _form?.OutputBox, _file, _form, cancellationToken));
             }
         }
 

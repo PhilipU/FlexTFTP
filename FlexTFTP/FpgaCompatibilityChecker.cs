@@ -21,6 +21,96 @@ namespace FlexTFTP
         private const int HttpTimeoutSeconds = 30;
         private const bool EnableDebugOutput = false; // Set to false to disable debug output
 
+        // State tracking for cancellation support
+        private static CancellationTokenSource? _cancellationTokenSource = null;
+        private static bool _checkInProgress = false;
+        private static FlexTftpForm? _activeForm = null;
+        private static readonly object _lockObject = new object();
+
+        /// <summary>
+        /// Checks if an FPGA compatibility check is currently in progress
+        /// </summary>
+        public static bool IsInProgress()
+        {
+            lock (_lockObject)
+            {
+                return _checkInProgress;
+            }
+        }
+
+        /// <summary>
+        /// Cancels the currently running FPGA compatibility check
+        /// </summary>
+        public static void CancelCheck()
+        {
+            lock (_lockObject)
+            {
+                if (_checkInProgress && _cancellationTokenSource != null)
+                {
+                    _cancellationTokenSource.Cancel();
+                }
+            }
+        }
+
+        /// <summary>
+        /// Starts a new FPGA compatibility check. Cancels any existing check.
+        /// </summary>
+        /// <param name="form">The form to update button state on</param>
+        /// <returns>CancellationToken for the new check</returns>
+        public static CancellationToken StartCheck(FlexTftpForm? form)
+        {
+            lock (_lockObject)
+            {
+                // Cancel any existing check
+                if (_checkInProgress && _cancellationTokenSource != null)
+                {
+                    _cancellationTokenSource.Cancel();
+                    _cancellationTokenSource.Dispose();
+                }
+
+                // Start new check
+                _cancellationTokenSource = new CancellationTokenSource();
+                _checkInProgress = true;
+                _activeForm = form;
+                return _cancellationTokenSource.Token;
+            }
+        }
+
+        /// <summary>
+        /// Stops the FPGA check and resets state
+        /// </summary>
+        private static void StopCheck()
+        {
+            lock (_lockObject)
+            {
+                _checkInProgress = false;
+                FlexTftpForm? form = _activeForm;
+                _activeForm = null;
+                
+                if (_cancellationTokenSource != null)
+                {
+                    _cancellationTokenSource.Dispose();
+                    _cancellationTokenSource = null;
+                }
+
+                // Reset button text on UI thread
+                if (form != null)
+                {
+                    try
+                    {
+                        form.Invoke(new Action(() =>
+                        {
+                            form.SetTransferStateButtonText("Download");
+                        }));
+                    }
+                    catch
+                    {
+                        // Ignore errors if form is closing
+                    }
+                }
+            }
+        }
+
         /// <summary>
         /// Checks FPGA compatibility by comparing required FPGA images from /api/project with loaded images from /api/fpga
         /// </summary>
@@ -28,22 +118,30 @@ namespace FlexTFTP
         /// <param name="outputBox">OutputBox for logging messages</param>
         /// <param name="s19FilePath">Path to the S19 file that was transferred (optional)</param>
         /// <param name="form">Main form for triggering transfers</param>
-        public static void CheckCompatibilityAsync(string ipAddress, OutputBox? outputBox, string? s19FilePath = null, FlexTftpForm? form = null)
+        /// <param name="cancellationToken">Token to cancel the operation</param>
+        public static void CheckCompatibilityAsync(string ipAddress, OutputBox? outputBox, string? s19FilePath = null, FlexTftpForm? form = null, CancellationToken cancellationToken = default)
         {
-            if (EnableDebugOutput)
-                outputBox?.AddLine("[DEBUG] FPGA Check: Method entered", Color.Gray, true);
-            
-            if (string.IsNullOrEmpty(ipAddress) || outputBox == null)
-            {
-                if (EnableDebugOutput)
-                    outputBox?.AddLine("[DEBUG] FPGA Check: Invalid parameters, exiting", Color.Gray, true);
-                return;
-            }
-
-            Thread.Sleep(RestApiDelaySeconds * 1000);
-
             try
             {
+                if (EnableDebugOutput)
+                    outputBox?.AddLine("[DEBUG] FPGA Check: Method entered", Color.Gray, true);
+                
+                if (string.IsNullOrEmpty(ipAddress) || outputBox == null)
+                {
+                    if (EnableDebugOutput)
+                        outputBox?.AddLine("[DEBUG] FPGA Check: Invalid parameters, exiting", Color.Gray, true);
+                    return;
+                }
+
+                // Check for cancellation
+                if (cancellationToken.IsCancellationRequested)
+                {
+                    outputBox?.AddLine("FPGA check cancelled!", Color.Orange, true);
+                    return;
+                }
+
+                Thread.Sleep(RestApiDelaySeconds * 1000);
+
                 // Check if device is already online
                 bool isAlreadyOnline = false;
                 try
@@ -68,9 +166,16 @@ namespace FlexTFTP
                     if (EnableDebugOutput)
                         outputBox.AddLine("[DEBUG] FPGA Check: Calling WaitForDeviceOnline", Color.Gray, true);
                     
-                    if (!WaitForDeviceOnline(ipAddress, outputBox))
+                    if (!WaitForDeviceOnline(ipAddress, outputBox, cancellationToken))
                     {
-                        outputBox.AddLine("Device did not respond, skipping FPGA check", Color.Gray, true);
+                        if (cancellationToken.IsCancellationRequested)
+                        {
+                            outputBox.AddLine("FPGA check cancelled!", Color.Orange, true);
+                        }
+                        else
+                        {
+                            outputBox.AddLine("Device did not respond, skipping FPGA check", Color.Gray, true);
+                        }
                         if (EnableDebugOutput)
                             outputBox.AddLine("[DEBUG] FPGA Check: Device timeout, exiting", Color.Gray, true);
                         return;
@@ -81,10 +186,24 @@ namespace FlexTFTP
                     outputBox.AddLine("[DEBUG] Device already online, skipping restart wait", Color.Gray, true);
                 }
 
+                // Check for cancellation
+                if (cancellationToken.IsCancellationRequested)
+                {
+                    outputBox.AddLine("FPGA check cancelled!", Color.Orange, true);
+                    return;
+                }
+
                 // Additional delay for REST API to be ready
                 if (EnableDebugOutput)
                     outputBox.AddLine($"[DEBUG] FPGA Check: Waiting {RestApiDelaySeconds}s for REST API", Color.Gray, true);
                 Thread.Sleep(RestApiDelaySeconds * 1000);
+
+                // Check for cancellation
+                if (cancellationToken.IsCancellationRequested)
+                {
+                    outputBox.AddLine("FPGA check cancelled!", Color.Orange, true);
+                    return;
+                }
 
                 // Get required FPGA images
                 if (EnableDebugOutput)
@@ -94,6 +213,13 @@ namespace FlexTFTP
                 if (requiredFpgas == null || requiredFpgas.Count == 0)
                 {
                     outputBox.AddLine($"Failed to check for required FPGA images", Color.Gray, true);
+                    return;
+                }
+
+                // Check for cancellation
+                if (cancellationToken.IsCancellationRequested)
+                {
+                    outputBox.AddLine("FPGA check cancelled!", Color.Orange, true);
                     return;
                 }
 
@@ -109,6 +235,13 @@ namespace FlexTFTP
                 {
                     if (EnableDebugOutput)
                         outputBox.AddLine($"[DEBUG] FPGA Check: No loaded FPGAs found (null={loadedFpgas == null}, count={loadedFpgas?.Count ?? 0})", Color.Gray, true);
+                    return;
+                }
+
+                // Check for cancellation
+                if (cancellationToken.IsCancellationRequested)
+                {
+                    outputBox.AddLine("FPGA check cancelled!", Color.Orange, true);
                     return;
                 }
 
@@ -200,6 +333,11 @@ namespace FlexTFTP
                     outputBox.AddLine("FPGA compatibility check: OK", Color.Green, true);
                 }
             }
+            catch (OperationCanceledException)
+            {
+                // Check was cancelled
+                outputBox?.AddLine("FPGA check cancelled!", Color.Orange, true);
+            }
             catch (Exception ex)
             {
                 if (EnableDebugOutput)
@@ -208,6 +346,11 @@ namespace FlexTFTP
                     outputBox?.AddLine($"[DEBUG] FPGA Check: Stack trace: {ex.StackTrace}", Color.Gray, true);
                 }
                 // Silently ignore all errors as requested
+            }
+            finally
+            {
+                // Always reset state when check completes or fails
+                StopCheck();
             }
         }
 
@@ -538,13 +681,19 @@ namespace FlexTFTP
         /// <summary>
         /// Waits for device to respond to ping
         /// </summary>
-        private static bool WaitForDeviceOnline(string ipAddress, OutputBox outputBox)
+        private static bool WaitForDeviceOnline(string ipAddress, OutputBox outputBox, CancellationToken cancellationToken = default)
         {
             var endTime = DateTime.Now.AddSeconds(MaxWaitTimeSeconds);
             int attemptCount = 0;
 
             while (DateTime.Now < endTime)
             {
+                // Check for cancellation
+                if (cancellationToken.IsCancellationRequested)
+                {
+                    return false;
+                }
+
                 attemptCount++;
                 try
                 {
@@ -573,8 +722,15 @@ namespace FlexTFTP
                     // Ping failed, continue waiting
                 }
 
-                // Wait before next ping
-                Thread.Sleep(PingIntervalSeconds * 1000);
+                // Wait before next ping, but check cancellation periodically
+                for (int i = 0; i < PingIntervalSeconds; i++)
+                {
+                    if (cancellationToken.IsCancellationRequested)
+                    {
+                        return false;
+                    }
+                    Thread.Sleep(1000);
+                }
             }
 
             if (EnableDebugOutput)

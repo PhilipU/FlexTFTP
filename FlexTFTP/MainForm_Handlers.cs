@@ -45,10 +45,22 @@ namespace FlexTFTP
                 return;
             }
 
+            // Check if transfer is in progress
+            if (Transfer.InProgress())
+            {
+                OutputBox.AddLine("Cannot start FPGA check while transfer is in progress", Color.Orange, true);
+                return;
+            }
+
             OutputBox.AddLine("Starting manual FPGA compatibility check...", Color.Black, true);
+            
+            // Start check and get cancellation token
+            var cancellationToken = FpgaCompatibilityChecker.StartCheck(this);
+            SetTransferStateButtonText("Cancel FPGA");
+            
             System.Threading.Tasks.Task.Run(() =>
             {
-                FpgaCompatibilityChecker.CheckCompatibilityAsync(ipAddress, OutputBox, null, this);
+                FpgaCompatibilityChecker.CheckCompatibilityAsync(ipAddress, OutputBox, null, this, cancellationToken);
             });
         }
 
@@ -76,6 +88,15 @@ namespace FlexTFTP
 
         private void buttonDownload_Click(object sender, EventArgs e)
         {
+            // Check if FPGA check is in progress first
+            if (FpgaCompatibilityChecker.IsInProgress())
+            {
+                FpgaCompatibilityChecker.CancelCheck();
+                // Note: Button text will be reset to "Download" by StopCheck() in FpgaCompatibilityChecker
+                return;
+            }
+
+            // Handle transfer (either start or cancel)
             if (Transfer.ToggleState(_openedPath, _targetPath, textBoxAddress.Text, int.Parse(maskedTextBoxPort.Text)))
             {
                 _pathAutoCompleteList.AddEntry(_targetPath);
