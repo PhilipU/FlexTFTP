@@ -260,18 +260,18 @@ namespace FlexTFTP
                     // Check if FPGA needs update
                     bool needsUpdate = false;
                     
-                    if (loaded == null)
+                    if (required.FpgaImage?.Type == "0x0000")
+                    {
+                        // Type 0x0000 means no FPGA image required - skip update
+                        if (EnableDebugOutput)
+                            outputBox.AddLine($"[DEBUG] FPGA ID={required.Id} type is zero (0x0000), no update required", Color.Gray, true);
+                        needsUpdate = false;
+                    }
+                    else if (loaded == null)
                     {
                         if (EnableDebugOutput)
                             outputBox.AddLine($"[DEBUG] FPGA ID={required.Id} not loaded", Color.Gray, true);
                         needsUpdate = true;
-                    }
-                    else if (required.FpgaImage?.Type == "0x0000")
-                    {
-                        // Type 0x0000 means "any FPGA image allowed" - wildcard
-                        if (EnableDebugOutput)
-                            outputBox.AddLine($"[DEBUG] FPGA ID={required.Id} wildcard type (0x0000), any image accepted", Color.Gray, true);
-                        needsUpdate = false;
                     }
                     else if (loaded.FpgaImage?.Type != required.FpgaImage?.Type)
                     {
@@ -464,18 +464,18 @@ namespace FlexTFTP
                     // Check if FPGA needs update
                     bool needsUpdate = false;
                     
-                    if (loaded == null)
+                    if (required.FpgaImage?.Type == "0x0000")
+                    {
+                        // Type 0x0000 means no FPGA image required - skip update
+                        if (EnableDebugOutput)
+                            Utils.WriteLine($"[DEBUG] FPGA ID={required.Id} type is zero (0x0000), no update required");
+                        needsUpdate = false;
+                    }
+                    else if (loaded == null)
                     {
                         if (EnableDebugOutput)
                             Utils.WriteLine($"[DEBUG] FPGA ID={required.Id} not loaded");
                         needsUpdate = true;
-                    }
-                    else if (required.FpgaImage?.Type == "0x0000")
-                    {
-                        // Type 0x0000 means "any FPGA image allowed" - wildcard
-                        if (EnableDebugOutput)
-                            Utils.WriteLine($"[DEBUG] FPGA ID={required.Id} wildcard type (0x0000), any image accepted");
-                        needsUpdate = false;
                     }
                     else if (loaded.FpgaImage?.Type != required.FpgaImage?.Type)
                     {
