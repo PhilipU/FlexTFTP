@@ -1,12 +1,17 @@
 ﻿FlexTFTP
 
-Last Update: 05.08.2025
+Last Update: 19.08.2026
 https://github.com/PhilipU/FlexTFTP
 (help at end of page)
 
+v5.2
+----
+* Add new device FL3X TAP
+* Add support for FLEX System-M Factory Image
+
 v5.1
 ----
-*
+* Add FPGA image update
 
 v5.0
 ----

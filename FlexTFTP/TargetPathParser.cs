@@ -166,15 +166,27 @@ namespace FlexTFTP
 
             /* FlexSystem-XS */
             { "3-01040A01_application.s19", "cpu/application"           },
+            { "3-01040A01_fallback.s19", "cpu/fallback"                 },
+            { "3-01040A01_distribution.s19", "cpu/distribution"         },
 
             /* FlexSystem-XS Squared */
             { "3-01040C01_application.s19", "cpu/application"           },
+            { "3-01040C01_fallback.s19", "cpu/fallback"                 },
+            { "3-01040C01_distribution.s19", "cpu/distribution"         },
 
             /* FlexSystem-XS Cubed */
             { "3-01040D01_application.s19", "cpu/application"           },
+            { "3-01040D01_fallback.s19", "cpu/fallback"                 },
+            { "3-01040D01_distribution.s19", "cpu/distribution"         },
 
             /* FlexSystem-M */
             { "3-01050A01_application.s19", "cpu/application"           },
+            { "3-01050A01_fallback.s19", "cpu/fallback"                 },
+            { "3-01050A01_distribution.s19", "cpu/distribution"         },
+
+            /* FlexTAP */
+            { "esp/application", "esp/application"                  },
+            { "esp/web", "esp/web"                                  },
         };
 
         public static string GetPathByName(string name)
