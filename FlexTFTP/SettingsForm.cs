@@ -69,8 +69,14 @@ namespace FlexTFTP
         private void SettingsForm_Load(object sender, EventArgs e)
         {
             _flexTftPform = (FlexTftpForm)Owner;
-            DateTime currentDateTime = File.GetLastWriteTime(GetType().Assembly.Location);
-            string currentDateString = currentDateTime.ToString("dd.MM.yyyy HH:mm");
+
+            string currentDateString = "?";
+
+            if (!string.IsNullOrEmpty(System.AppContext.BaseDirectory))
+            {
+                DateTime currentDateTime = File.GetLastWriteTime(System.AppContext.BaseDirectory);
+                currentDateString = currentDateTime.ToString("dd.MM.yyyy HH:mm");
+            }
 
             maskedTextBoxMultiTargetFileMinSize.Text = Math.Round((Settings.Default.MultiFileMinSize / 1024D / 1024D), 0).ToString(CultureInfo.InvariantCulture);
             updateCheck.Checked = Settings.Default.UpdateEnabled;

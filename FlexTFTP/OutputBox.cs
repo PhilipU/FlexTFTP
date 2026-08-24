@@ -34,7 +34,7 @@ namespace FlexTFTP
 
             // Right click menu for output box
             ContextMenuStrip contextMenu = new ContextMenuStrip();
-            contextMenu.Items.Add("Clear");
+            contextMenu.Items.Add("Clear", null, (sender, e) => Clear());
             _richTextBox.ContextMenuStrip = contextMenu;
             _richTextBox.MouseMove += MouseMove;
             _richTextBox.MouseClick += MouseClick;
